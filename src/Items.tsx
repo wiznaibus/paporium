@@ -26,7 +26,7 @@ export const Items = () => {
         // load the database
         const loadDb = async () => {
             try {
-                const response = await fetch(`/db/items.sqlite`);
+                const response = await fetch(`./db/items.sqlite`);
                 const buffer = await response.arrayBuffer();
 
                 const SQL = await initSqlJs({

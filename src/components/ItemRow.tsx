@@ -30,31 +30,31 @@ export const ItemRow = ({
             
             <td>
                 {mobCount && <>
-                    <img height="16" width="16" src="/assets/icons/drop.svg" style={{ verticalAlign: 'text-bottom' }} />
+                    <img height="16" width="16" src="./assets/icons/drop.svg" style={{ verticalAlign: 'text-bottom' }} />
                     {mobCount?.toLocaleString()}
                 </>}
             </td>
             <td>
                 {ingredientSum && <>
-                    <img height="16" width="16" src="/assets/icons/star.svg" style={{ verticalAlign: 'text-bottom' }} />
+                    <img height="16" width="16" src="./assets/icons/star.svg" style={{ verticalAlign: 'text-bottom' }} />
                     x{ingredientSum?.toLocaleString()}
                 </>}
             </td>
             <td>
                 {repeatableIngredientSum && <>
-                    <img height="16" width="16" src="/assets/icons/repeatable.svg" style={{ verticalAlign: 'text-bottom' }} />
+                    <img height="16" width="16" src="./assets/icons/repeatable.svg" style={{ verticalAlign: 'text-bottom' }} />
                     x{repeatableIngredientSum?.toLocaleString()}
                 </>}
             </td>
             <td>
                 {productSum && <>
-                    <img height="16" width="16" src="/assets/icons/star.svg" style={{ verticalAlign: 'text-bottom' }} />
+                    <img height="16" width="16" src="./assets/icons/star.svg" style={{ verticalAlign: 'text-bottom' }} />
                     x{productSum?.toLocaleString()}
                 </>}
             </td>
             <td>
                 {repeatableProductSum && <>
-                    <img height="16" width="16" src="/assets/icons/repeatable.svg" style={{ verticalAlign: 'text-bottom' }} />
+                    <img height="16" width="16" src="./assets/icons/repeatable.svg" style={{ verticalAlign: 'text-bottom' }} />
                     x{repeatableProductSum?.toLocaleString()}
                 </>}
             </td>
