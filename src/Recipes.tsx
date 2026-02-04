@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import initSqlJs from "sql.js";
 import type { Database, QueryExecResult } from "sql.js";
 

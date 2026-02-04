@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import initSqlJs from "sql.js";
-import type { Database, QueryExecResult } from "sql.js";
+import type { Database } from "sql.js";
 import { type SearchFilter } from "../utilities/SearchFilter";
 
 export const ItemDetails = ({
@@ -88,8 +88,8 @@ export const ItemDetails = ({
                 WHERE Item.Id = ${id}
             `;
 
-            const jobs = Array.from(filter.jobs.entries()).filter(([ key, value ]) => value.checked).map(([ key, value ]) => key).join(",");
-            const recipeTypes = Array.from(filter.recipeTypes.entries()).filter(([ key, value ]) => value.checked).map(([ key, value ]) => key).join(",");
+            const jobs = Array.from(filter.jobs.entries()).filter(([ _key, value ]) => value.checked).map(([ key ]) => key).join(",");
+            const recipeTypes = Array.from(filter.recipeTypes.entries()).filter(([ _key, value ]) => value.checked).map(([ key ]) => key).join(",");
 
             let recipeFilter = ``;
             recipeFilter += jobs ? `

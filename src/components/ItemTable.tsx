@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import type { SqlValue } from "sql.js";
 import { type SearchFilter } from "../utilities/SearchFilter";
 import { ItemRow } from "./ItemRow";
 
-export const ItemTable = ({ filter, columns, values }: { filter: SearchFilter, columns: string[], values: SqlValue[][] }): ReactNode => {    
+export const ItemTable = ({ filter, values }: { filter: SearchFilter, columns: string[], values: SqlValue[][] }): ReactNode => {    
     return (
         <table>
             <thead>
