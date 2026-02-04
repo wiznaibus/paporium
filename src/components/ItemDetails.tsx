@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import initSqlJs from "sql.js";
 import type { Database, QueryExecResult } from "sql.js";
-import { useSearchParams } from 'react-router-dom';
-
-interface FilterItem {
-    id: any
-}
+import { type SearchFilter } from "../utilities/SearchFilter";
 
 export const ItemDetails = ({
-    id
-}: any) => {
+    id,
+    filter
+}: {
+    id: number,
+    filter: SearchFilter
+}) => {
     const [db, setDb] = useState<Database | null>(null);
     const [drops, setDrops] = useState<any[]>([]);
     const [mvpDrops, setMvpDrops] = useState<any[]>([]);
@@ -41,6 +41,7 @@ export const ItemDetails = ({
 
     useEffect(() => {
         if (db) {
+
             setDrops(db.exec(`
                 SELECT
                 Mob.Name AS Mob,
@@ -77,8 +78,6 @@ export const ItemDetails = ({
 
             const baseQuery = `
                 SELECT
-                -- Item.Id AS Id,
-                -- Item.Name AS Item,
                 Recipe.Name AS Recipe,
                 RecipeType.Name AS RecipeType,
                 RecipeItem.Quantity
@@ -89,59 +88,78 @@ export const ItemDetails = ({
                 WHERE Item.Id = ${id}
             `;
 
-            setRecipeIngredients(db.exec(`
-                ${baseQuery}
-                AND RecipeItem.RecipeItemTypeId = 1
-                AND Recipe.Repeatable = 0
-                ORDER BY Recipe.RecipeTypeId, Recipe.Id
-            `).map(({ values }) => (
-                values.map((value) => ({
-                    recipe: value[0],
-                    recipeType: value[1],
-                    quantity: value[2],
-                }))
-            ))[0]);
+            const jobs = Array.from(filter.jobs.entries()).filter(([ key, value ]) => value.checked).map(([ key, value ]) => key).join(",");
+            const recipeTypes = Array.from(filter.recipeTypes.entries()).filter(([ key, value ]) => value.checked).map(([ key, value ]) => key).join(",");
 
-            setRepeatableRecipeIngredients(db.exec(`
-                ${baseQuery}
-                AND RecipeItem.RecipeItemTypeId = 1
-                AND Recipe.Repeatable = 1
-                ORDER BY Recipe.RecipeTypeId, Recipe.Id
-            `).map(({ values }) => (
-                values.map((value) => ({
-                    recipe: value[0],
-                    recipeType: value[1],
-                    quantity: value[2],
-                }))
-            ))[0]);
+            let recipeFilter = ``;
+            recipeFilter += jobs ? `
+                AND (Recipe.JobId IN (${jobs}) OR Recipe.JobId IS NULL)
+            ` : ``;
+            recipeFilter += recipeTypes ? `
+                AND Recipe.RecipeTypeId IN (${recipeTypes})
+            ` : ``;
 
-            setRecipeProducts(db.exec(`
-                ${baseQuery}
-                AND RecipeItem.RecipeItemTypeId = 2
-                AND Recipe.Repeatable = 0
-                ORDER BY Recipe.RecipeTypeId, Recipe.Id
-            `).map(({ values }) => (
-                values.map((value) => ({
-                    recipe: value[0],
-                    recipeType: value[1],
-                    quantity: value[2],
-                }))
-            ))[0]);
+            if (filter.recipeItemTypes?.get(1)?.checked || (!filter.recipeItemTypes?.get(1)?.checked && !filter.recipeItemTypes?.get(2)?.checked)) {
+                    setRecipeIngredients(db.exec(`
+                    ${baseQuery}
+                    ${recipeFilter}
+                    AND RecipeItem.RecipeItemTypeId = 1
+                    AND Recipe.Repeatable = 0
+                    ORDER BY Recipe.RecipeTypeId, Recipe.Id
+                `).map(({ values }) => (
+                    values.map((value) => ({
+                        recipe: value[0],
+                        recipeType: value[1],
+                        quantity: value[2],
+                    }))
+                ))[0]);
 
-            setRepeatableRecipeProducts(db.exec(`
-                ${baseQuery}
-                AND RecipeItem.RecipeItemTypeId = 2
-                AND Recipe.Repeatable = 1
-                ORDER BY Recipe.RecipeTypeId, Recipe.Id
-            `).map(({ values }) => (
-                values.map((value) => ({
-                    recipe: value[0],
-                    recipeType: value[1],
-                    quantity: value[2],
-                }))
-            ))[0]);
+                setRepeatableRecipeIngredients(db.exec(`
+                    ${baseQuery}
+                    ${recipeFilter}
+                    AND RecipeItem.RecipeItemTypeId = 1
+                    AND Recipe.Repeatable = 1
+                    ORDER BY Recipe.RecipeTypeId, Recipe.Id
+                `).map(({ values }) => (
+                    values.map((value) => ({
+                        recipe: value[0],
+                        recipeType: value[1],
+                        quantity: value[2],
+                    }))
+                ))[0]);
+            }
+
+            if (filter.recipeItemTypes?.get(2)?.checked || (!filter.recipeItemTypes?.get(1)?.checked && !filter.recipeItemTypes?.get(2)?.checked)) {
+                    setRecipeProducts(db.exec(`
+                    ${baseQuery}
+                    ${recipeFilter}
+                    AND RecipeItem.RecipeItemTypeId = 2
+                    AND Recipe.Repeatable = 0
+                    ORDER BY Recipe.RecipeTypeId, Recipe.Id
+                `).map(({ values }) => (
+                    values.map((value) => ({
+                        recipe: value[0],
+                        recipeType: value[1],
+                        quantity: value[2],
+                    }))
+                ))[0]);
+
+                setRepeatableRecipeProducts(db.exec(`
+                    ${baseQuery}
+                    ${recipeFilter}
+                    AND RecipeItem.RecipeItemTypeId = 2
+                    AND Recipe.Repeatable = 1
+                    ORDER BY Recipe.RecipeTypeId, Recipe.Id
+                `).map(({ values }) => (
+                    values.map((value) => ({
+                        recipe: value[0],
+                        recipeType: value[1],
+                        quantity: value[2],
+                    }))
+                ))[0]);
+            }
         }
-    }, [db]);
+    }, [db, filter]);
 
     return (
         <div>

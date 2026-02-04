@@ -1,7 +1,10 @@
 import { useState, type ReactNode } from "react";
+import { type SearchFilter } from "../utilities/SearchFilter";
 import { ItemDetails } from "./ItemDetails";
 
+
 export const ItemRow = ({
+    filter,
     id,
     name,
     itemType,
@@ -72,7 +75,13 @@ export const ItemRow = ({
             <td colSpan={8}>
                 <details onToggle={handleToggle}>
                     <summary>Details</summary>
-                    {isOpen && <ItemDetails id={id} />}
+                    {
+                        isOpen && <ItemDetails 
+                            key={`${id}-${name}`}
+                            id={id} 
+                            filter={filter}
+                        />
+                    }
                 </details>
             </td>
         </tr>

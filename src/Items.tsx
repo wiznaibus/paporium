@@ -6,16 +6,20 @@ import { ItemTable } from "./components/ItemTable";
 import { mergeSearchFilter, parseSearchParams, type FilterItem, type SearchFilter } from "./utilities/SearchFilter";
 
 export const Items = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [db, setDb] = useState<Database | null>(null);
-    const [data, setData] = useState<QueryExecResult[]>([]);
-    const [filter, setFilter] = useState<SearchFilter>({
+    const defaultFilter: SearchFilter = {
         item: "",
         itemTypes: new Map<number, FilterItem>(),
         jobs: new Map<number, FilterItem>(),
         recipeItemTypes: new Map<number, FilterItem>(),
         recipeTypes: new Map<number, FilterItem>(),
-    });
+    };
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [db, setDb] = useState<Database | null>(null);
+    const [data, setData] = useState<QueryExecResult[]>([]);
+    const [filterData, setFilterData] = useState<SearchFilter>(defaultFilter);
+    const [filter, setFilter] = useState<SearchFilter>(defaultFilter);
+    const [submittedTimestamp, setSubmittedTimestamp] = useState<number>(Date.now());
 
     // load the database
     useEffect(() => {
@@ -66,6 +70,9 @@ export const Items = () => {
                 recipeItemTypes: new Map<number, FilterItem>(recipeItemTypes.map((value) => [Number(value.id) ?? 0, value])),
                 recipeTypes: new Map<number, FilterItem>(recipeTypes.map((value) => [Number(value.id) ?? 0, value])),
             };
+
+            // save the database filter data so we can reference it whenever the form is submitted or reset
+            setFilterData(databaseFilterItems);
 
             // load filter data from searchParams
             const parsedSearchParams = parseSearchParams(searchParams);
@@ -229,29 +236,49 @@ export const Items = () => {
                 )
                 ${filter}
                 GROUP BY Item.Id
-                -- LIMIT 100;
+                LIMIT 100;
             `;
 
             setData(db.exec(query));
         }
     }, [db, searchParams]);
 
+    // update searchParams and the filter
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setSubmittedTimestamp(Date.now());
         const formData = new FormData(event.currentTarget);
 
-        setSearchParams({ 
+        const formSearchFilter = {
             item: formData.get("item")?.toString() ?? "",
-            itemType: formData.getAll("itemType").join(","),
-            job: formData.getAll("job").join(","),
-            recipeType: formData.getAll("recipeType").join(","),
-            recipeItemType: formData.getAll("recipeItemType").join(","),
+            itemType: formData.getAll("itemType"),
+            job: formData.getAll("job"),
+            recipeType: formData.getAll("recipeType"),
+            recipeItemType: formData.getAll("recipeItemType"),
+        };
+
+        setFilter({
+            ...mergeSearchFilter(filterData, {
+                item: formSearchFilter.item,
+                itemTypes: new Map<number, FilterItem>(formSearchFilter.itemType.map(value => [ Number(value), { checked: true }])),
+                jobs: new Map<number, FilterItem>(formSearchFilter.job.map(value => [ Number(value), { checked: true }])),
+                recipeTypes: new Map<number, FilterItem>(formSearchFilter.recipeType.map(value => [ Number(value), { checked: true }])),
+                recipeItemTypes: new Map<number, FilterItem>(formSearchFilter.recipeItemType.map(value => [ Number(value), { checked: true }])),
+            })
+        });
+
+        setSearchParams({
+            item: formSearchFilter.item,
+            itemType: formSearchFilter.itemType.join(","),
+            job: formSearchFilter.job.join(","),
+            recipeType: formSearchFilter.recipeType.join(","),
+            recipeItemType: formSearchFilter.recipeItemType.join(","),
         });
     };
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
+            <form id="filterForm" onSubmit={handleSubmit}>
                 <label>Search 
                     <input name="item" type="text" />
                 </label>
@@ -300,7 +327,7 @@ export const Items = () => {
             </form>
 
             {data.map(({ columns, values }, i) => (
-                <ItemTable key={i} columns={columns} values={values} />
+                <ItemTable key={`${i}-${submittedTimestamp}`} columns={columns} filter={filter} values={values} />
             ))}
         </div>
     );

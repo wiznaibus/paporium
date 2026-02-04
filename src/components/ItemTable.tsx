@@ -1,15 +1,11 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { SqlValue } from "sql.js";
+import { type SearchFilter } from "../utilities/SearchFilter";
 import { ItemRow } from "./ItemRow";
 
-export const ItemTable = ({ columns, values }: { columns: string[], values: SqlValue[][] }): ReactNode => {
+export const ItemTable = ({ filter, columns, values }: { filter: SearchFilter, columns: string[], values: SqlValue[][] }): ReactNode => {    
     return (
         <table>
-            {/* <colgroup>
-                <col span= />
-                <col />
-                <col />
-            </colgroup> */}
             <thead>
                 <tr>
                     <td colSpan={4}>Item</td>
@@ -40,10 +36,10 @@ export const ItemTable = ({ columns, values }: { columns: string[], values: SqlV
 
             <tbody>
                 {
-                    // values is an array of arrays representing the results of the query
                     values.map((row, i) => (
                         <ItemRow
-                            key={i}
+                            key={`row-${i}-${row[1]}`}
+                            filter={filter}
                             id={row[0]}
                             name={row[1]}
                             itemType={row[2]}
@@ -62,13 +58,3 @@ export const ItemTable = ({ columns, values }: { columns: string[], values: SqlV
         </table>
     );
 };
-
-{/* {columns.map((columnName, i) => (
-    <td key={i}>{columnName}</td>
-))} */}
-
-{/* <tr key={i}>
-    {row.map((value, i) => (
-    <td key={i}>{value}</td>
-    ))}
-</tr> */}
