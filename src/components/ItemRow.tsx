@@ -1,7 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { type SearchFilter } from "../utilities/SearchFilter";
 import { ItemDetails } from "./ItemDetails";
-
 
 export const ItemRow = ({
     filter,
