@@ -3,36 +3,23 @@ import initSqlJs from "sql.js";
 import type { Database, QueryExecResult } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
 import { ItemTable } from "./components/ItemTable";
-
-interface FilterItem {
-    id: any,
-    name: any
-}
+import { mergeSearchFilter, parseSearchParams, type FilterItem, type SearchFilter } from "./utilities/SearchFilter";
 
 export const Items = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-
     const [db, setDb] = useState<Database | null>(null);
     const [data, setData] = useState<QueryExecResult[]>([]);
-    const [itemTypes, setItemTypes] = useState<FilterItem[]>([]);
-    const [jobs, setJobs] = useState<FilterItem[]>([]);
-    const [recipeTypes, setRecipeTypes] = useState<FilterItem[]>([]);
-    const [recipeItemTypes, setRecipeItemTypes] = useState<FilterItem[]>([]);
+    const [filter, setFilter] = useState<SearchFilter>({
+        item: "",
+        itemTypes: new Map<number, FilterItem>(),
+        jobs: new Map<number, FilterItem>(),
+        recipeItemTypes: new Map<number, FilterItem>(),
+        recipeTypes: new Map<number, FilterItem>(),
+    });
 
-    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-
-        setSearchParams({ 
-            item: formData.get("item")?.toString() ?? "",
-            itemType: formData.getAll("itemType").join(","),
-            job: formData.getAll("job").join(","),
-            recipeType: formData.getAll("recipeType").join(","),
-            recipeItemType: formData.getAll("recipeItemType").join(","),
-        });
-    };
-
+    // load the database
     useEffect(() => {
+        // load the database
         const loadDb = async () => {
             try {
                 const response = await fetch(`/db/items.sqlite`);
@@ -49,37 +36,71 @@ export const Items = () => {
                 console.error(error);
             }
         };
-
         loadDb();
     }, []);
 
+    // load the filter data from the database and update based on searchParams
     useEffect(() => {
         if (db) {
-            setItemTypes(db.exec(`
+            // load filter data from database
+            const itemTypes = db.exec(`
                 SELECT * FROM ItemType
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1] }))))[0]);
+            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
 
-            setJobs(db.exec(`
+            const jobs = db.exec(`
                 SELECT * FROM Job
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1] }))))[0]);
-
-            setRecipeTypes(db.exec(`
+            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
+            
+            const recipeTypes = db.exec(`
                 SELECT * FROM RecipeType
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1] }))))[0]);
-
-            setRecipeItemTypes(db.exec(`
+            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
+            
+            const recipeItemTypes = db.exec(`
                 SELECT * FROM RecipeItemType
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1] }))))[0]);
+            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
+
+            const databaseFilterItems = {
+                item: "",
+                itemTypes: new Map<number, FilterItem>(itemTypes.map((value) => [Number(value.id) ?? 0, value])),
+                jobs: new Map<number, FilterItem>(jobs.map((value) => [Number(value.id) ?? 0, value])),
+                recipeItemTypes: new Map<number, FilterItem>(recipeItemTypes.map((value) => [Number(value.id) ?? 0, value])),
+                recipeTypes: new Map<number, FilterItem>(recipeTypes.map((value) => [Number(value.id) ?? 0, value])),
+            };
+
+            // load filter data from searchParams
+            const parsedSearchParams = parseSearchParams(searchParams);
+            const searchParamsFilterItems = {
+                item: parsedSearchParams.item,
+                itemTypes: new Map<number, FilterItem>(parsedSearchParams.itemTypes.map(
+                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
+                ),
+                jobs: new Map<number, FilterItem>(parsedSearchParams.jobs.map(
+                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
+                ),
+                recipeItemTypes: new Map<number, FilterItem>(parsedSearchParams.recipeItemTypes.map(
+                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
+                ),
+                recipeTypes: new Map<number, FilterItem>(parsedSearchParams.recipeTypes.map(
+                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
+                ),
+            };
+            
+            // merge the searchParams into the database filter data
+            setFilter({
+                ...mergeSearchFilter(databaseFilterItems, searchParamsFilterItems)
+            });
         }
     }, [db]);
 
+
+    // load items with the applied filter
     useEffect(() => {
         if (db) {
-            const item = searchParams.get("item");
-            const itemType = searchParams.get("itemType");
-            const job = searchParams.get("job");
-            const recipeType = searchParams.get("recipeType");
-            const recipeItemType = searchParams.get("recipeItemType")?.split(",") ?? [];
+            const item = searchParams.get("item") || null;
+            const itemType = searchParams.get("itemType") || null;
+            const job = searchParams.get("job") || null;
+            const recipeType = searchParams.get("recipeType") || null;
+            const recipeItemType = searchParams.get("recipeItemType") || null;
 
             let recipeFilter = ``;
             recipeFilter += job ? `
@@ -97,7 +118,7 @@ export const Items = () => {
                 AND Item.ItemTypeId IN (${itemType})
             ` : ``;
 
-            let ingredientColumns = recipeItemType.includes("1") ? `
+            let ingredientColumns = recipeItemType === null || recipeItemType.includes("1") ? `
                 IngredientItem.IngredientCount AS IngredientCount,
                 IngredientItem.IngredientSum AS IngredientSum,
                 RepeatableIngredientItem.RepeatableIngredientCount AS RepeatableIngredientCount,
@@ -108,7 +129,7 @@ export const Items = () => {
                 NULL AS RepeatableIngredientCount,
                 NULL AS RepeatableIngredientSum,
             `;
-            let ingredientFilter = recipeItemType.includes("1") ? `
+            let ingredientFilter = recipeItemType === null || recipeItemType.includes("1") ? `
                 LEFT JOIN (
                     SELECT ItemId, 
                     COUNT(RecipeItem.Quantity) AS "IngredientCount", 
@@ -133,7 +154,7 @@ export const Items = () => {
                     GROUP BY ItemId
                 ) AS RepeatableIngredientItem ON Item.Id = RepeatableIngredientItem.ItemId
             ` : ``;
-            let productColumns = recipeItemType.includes("2") ? `
+            let productColumns = recipeItemType === null || recipeItemType.includes("2") ? `
                 ProductItem.ProductCount AS ProductCount,
                 ProductItem.ProductSum AS ProductSum,
                 RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
@@ -144,7 +165,7 @@ export const Items = () => {
                 NULL AS RepeatableProductCount,
                 NULL AS RepeatableProductSum
             `;
-            let productFilter = recipeItemType.includes("2") ? `
+            let productFilter = recipeItemType === null || recipeItemType.includes("2") ? `
                 LEFT JOIN (
                     SELECT ItemId, 
                     COUNT(RecipeItem.Quantity) AS "ProductCount", 
@@ -208,14 +229,25 @@ export const Items = () => {
                 )
                 ${filter}
                 GROUP BY Item.Id
-                LIMIT 100;
+                -- LIMIT 100;
             `;
-
-            //console.log(query);
 
             setData(db.exec(query));
         }
     }, [db, searchParams]);
+
+    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+
+        setSearchParams({ 
+            item: formData.get("item")?.toString() ?? "",
+            itemType: formData.getAll("itemType").join(","),
+            job: formData.getAll("job").join(","),
+            recipeType: formData.getAll("recipeType").join(","),
+            recipeItemType: formData.getAll("recipeItemType").join(","),
+        });
+    };
 
     return (
         <div>
@@ -226,29 +258,41 @@ export const Items = () => {
 
                 <fieldset>
                     <legend>Item type</legend>
-                    {itemTypes.map(({ id, name }, i) => (
-                        <label key={i}><input defaultChecked name="itemType" type="checkbox" value={id} />{name}</label>
+                    {Array.from(filter.itemTypes.entries()).map(([ key, value ], i) => (
+                        <label key={i}>
+                            <input defaultChecked={value.checked ?? false} name="itemType" type="checkbox" value={key.toString()} />
+                            {value.name}
+                        </label>
                     ))}
                 </fieldset>
 
                 <fieldset>
                     <legend>Component type</legend>
-                    {recipeItemTypes.map(({ id, name }, i) => (
-                        <label key={i}><input defaultChecked name="recipeItemType" type="checkbox" value={id} />{name}</label>
+                    {Array.from(filter.recipeItemTypes.entries()).map(([ key, value ], i) => (
+                        <label key={i}>
+                            <input defaultChecked={value.checked ?? false} name="recipeItemType" type="checkbox" value={key.toString()} />
+                            {value.name}
+                        </label>
                     ))}
                 </fieldset>
 
                 <fieldset>
                     <legend>Jobs</legend>
-                    {jobs.map(({ id, name }, i) => (
-                        <label key={i}><input defaultChecked name="job" type="checkbox" value={id} />{name}</label>
+                    {Array.from(filter.jobs.entries()).map(([ key, value ], i) => (
+                        <label key={i}>
+                            <input defaultChecked={value.checked ?? false} name="job" type="checkbox" value={key.toString()} />
+                            {value.name}
+                        </label>
                     ))}
                 </fieldset>
 
                 <fieldset>
                     <legend>Recipe type</legend>
-                    {recipeTypes.map(({ id, name }, i) => (
-                        <label key={i}><input defaultChecked name="recipeType" type="checkbox" value={id} />{name}</label>
+                    {Array.from(filter.recipeTypes.entries()).map(([ key, value ], i) => (
+                        <label key={i}>
+                            <input defaultChecked={value.checked ?? false} name="recipeType" type="checkbox" value={key.toString()} />
+                            {value.name}
+                        </label>
                     ))}
                 </fieldset>
                 <button type="submit">Search</button>
