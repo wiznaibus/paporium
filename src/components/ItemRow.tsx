@@ -2,7 +2,6 @@ import { useState, type ReactNode } from "react";
 import { ItemDetails } from "./ItemDetails";
 
 export const ItemRow = ({
-    filter,
     id,
     name,
     itemType,
@@ -76,8 +75,7 @@ export const ItemRow = ({
                     {
                         isOpen && <ItemDetails 
                             key={`${id}-${name}`}
-                            id={id} 
-                            filter={filter}
+                            id={id}
                         />
                     }
                 </details>
