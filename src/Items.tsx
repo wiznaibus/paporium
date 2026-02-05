@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from "react";
-import initSqlJs from "sql.js";
-import type { Database, QueryExecResult } from "sql.js";
+import initSqlJs, { type Database, type QueryExecResult } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
+import { mergeSearchFilter, formatSearchParams, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { ItemTable } from "./components/ItemTable";
-import { mergeSearchFilter, parseSearchParams, type FilterItem, type SearchFilter } from "./utilities/SearchFilter";
 
 export const Items = () => {
-    const defaultFilter: SearchFilter = {
-        item: "",
-        itemTypes: new Map<number, FilterItem>(),
-        jobs: new Map<number, FilterItem>(),
-        recipeItemTypes: new Map<number, FilterItem>(),
-        recipeTypes: new Map<number, FilterItem>(),
-    };
-
     const [searchParams, setSearchParams] = useSearchParams();
     const [db, setDb] = useState<Database | null>(null);
     const [data, setData] = useState<QueryExecResult[]>([]);
-    const [filterData, setFilterData] = useState<SearchFilter>(defaultFilter);
-    const [filter, setFilter] = useState<SearchFilter>(defaultFilter);
-    const [submittedTimestamp, setSubmittedTimestamp] = useState<number>(Date.now());
+    const [itemInputValue, setItemInputValue] = useState<string>("");
+    const [filter, setFilter] = useState<SearchFilter>({
+        item: "",
+        itemTypes: [],
+        jobs: [],
+        recipeItemTypes: [],
+        recipeTypes: [],
+    });
+    const [filterDataLoaded, setFilterDataLoaded] = useState<boolean>(false);
 
     // load the database
     useEffect(() => {
@@ -49,53 +46,46 @@ export const Items = () => {
             // load filter data from database
             const itemTypes = db.exec(`
                 SELECT * FROM ItemType
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
+            `).map(({ values }) => (values.map((value) => ({ id: Number(value[0]) ?? 0, name: value[1]?.toString() ?? "", checked: false }))))[0];
 
             const jobs = db.exec(`
                 SELECT * FROM Job
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
-            
+            `).map(({ values }) => (values.map((value) => ({ id: Number(value[0]) ?? 0, name: value[1]?.toString() ?? "", checked: false }))))[0];
+
             const recipeTypes = db.exec(`
                 SELECT * FROM RecipeType
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
-            
+            `).map(({ values }) => (values.map((value) => ({ id: Number(value[0]) ?? 0, name: value[1]?.toString() ?? "", checked: false }))))[0];
+
             const recipeItemTypes = db.exec(`
                 SELECT * FROM RecipeItemType
-            `).map(({ values }) => (values.map((value) => ({ id: value[0], name: value[1]?.toString() ?? "", checked: false }))))[0];
+            `).map(({ values }) => (values.map((value) => ({ id: Number(value[0]) ?? 0, name: value[1]?.toString() ?? "", checked: false }))))[0];
 
-            const databaseFilterItems = {
+            const databaseFilterItems: SearchFilter = {
                 item: "",
-                itemTypes: new Map<number, FilterItem>(itemTypes.map((value) => [Number(value.id) ?? 0, value])),
-                jobs: new Map<number, FilterItem>(jobs.map((value) => [Number(value.id) ?? 0, value])),
-                recipeItemTypes: new Map<number, FilterItem>(recipeItemTypes.map((value) => [Number(value.id) ?? 0, value])),
-                recipeTypes: new Map<number, FilterItem>(recipeTypes.map((value) => [Number(value.id) ?? 0, value])),
+                itemTypes,
+                jobs,
+                recipeItemTypes,
+                recipeTypes,
             };
-
-            // save the database filter data so we can reference it whenever the form is submitted or reset
-            setFilterData(databaseFilterItems);
 
             // load filter data from searchParams
             const parsedSearchParams = parseSearchParams(searchParams);
-            const searchParamsFilterItems = {
+
+            setItemInputValue(parsedSearchParams.item ?? "");
+            const searchParamsFilterItems: SearchFilter = {
                 item: parsedSearchParams.item,
-                itemTypes: new Map<number, FilterItem>(parsedSearchParams.itemTypes.map(
-                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
-                ),
-                jobs: new Map<number, FilterItem>(parsedSearchParams.jobs.map(
-                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
-                ),
-                recipeItemTypes: new Map<number, FilterItem>(parsedSearchParams.recipeItemTypes.map(
-                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
-                ),
-                recipeTypes: new Map<number, FilterItem>(parsedSearchParams.recipeTypes.map(
-                    (value) => [Number(value.id) ?? 0, { checked: value.checked }])
-                ),
+                itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
             };
-            
+
             // merge the searchParams into the database filter data
             setFilter({
                 ...mergeSearchFilter(databaseFilterItems, searchParamsFilterItems)
             });
+
+            setFilterDataLoaded(true);
         }
     }, [db]);
 
@@ -104,28 +94,41 @@ export const Items = () => {
     useEffect(() => {
         if (db) {
             const item = searchParams.get("item") || null;
-            const itemType = searchParams.get("itemType") || null;
-            const job = searchParams.get("job") || null;
-            const recipeType = searchParams.get("recipeType") || null;
-            const recipeItemType = searchParams.get("recipeItemType") || null;
+            const itemTypes = searchParams.get("itemTypes") || null;
+            const jobs = searchParams.get("jobs") || null;
+            const recipeTypes = searchParams.get("recipeTypes") || null;
+            const recipeItemTypes = searchParams.get("recipeItemTypes") || null;
 
             let recipeFilter = ``;
-            recipeFilter += job ? `
-                AND (Recipe.JobId IN (${job}) OR Recipe.JobId IS NULL)
+            recipeFilter += jobs ? `
+                AND (Recipe.JobId IN (${jobs}))
             ` : ``;
-            recipeFilter += recipeType ? `
-                AND Recipe.RecipeTypeId IN (${recipeType})
+            recipeFilter += recipeTypes ? `
+                AND Recipe.RecipeTypeId IN (${recipeTypes})
+            ` : ``;
+
+            // the innerFilter is grouped in parentheses
+            let innerFilter = `
+                IngredientCount IS NOT NULL
+                OR RepeatableIngredientCount IS NOT NULL
+                OR ProductCount IS NOT NULL
+                OR RepeatableProductCount IS NOT NULL
+            `;
+            // show all items that are dropped by monsters if no filter is applied
+            innerFilter += !itemTypes && !jobs && !recipeTypes && !recipeItemTypes ? `
+                OR MobCount IS NOT NULL
+                -- OR Buy > 0
             ` : ``;
 
             let filter = ``;
             filter += item ? `
-                AND Item.Name LIKE '%${item}%'
+                AND (Item.Name LIKE '%${item}%' OR Item.Id LIKE '%${item}%')
             ` : ``;
-            filter += itemType ? `
-                AND Item.ItemTypeId IN (${itemType})
+            filter += itemTypes ? `
+                AND Item.ItemTypeId IN (${itemTypes})
             ` : ``;
 
-            let ingredientColumns = recipeItemType === null || recipeItemType.includes("1") ? `
+            let ingredientColumns = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
                 IngredientItem.IngredientCount AS IngredientCount,
                 IngredientItem.IngredientSum AS IngredientSum,
                 RepeatableIngredientItem.RepeatableIngredientCount AS RepeatableIngredientCount,
@@ -136,7 +139,7 @@ export const Items = () => {
                 NULL AS RepeatableIngredientCount,
                 NULL AS RepeatableIngredientSum,
             `;
-            let ingredientFilter = recipeItemType === null || recipeItemType.includes("1") ? `
+            let ingredientFilter = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
                 LEFT JOIN (
                     SELECT ItemId, 
                     COUNT(RecipeItem.Quantity) AS "IngredientCount", 
@@ -161,7 +164,7 @@ export const Items = () => {
                     GROUP BY ItemId
                 ) AS RepeatableIngredientItem ON Item.Id = RepeatableIngredientItem.ItemId
             ` : ``;
-            let productColumns = recipeItemType === null || recipeItemType.includes("2") ? `
+            let productColumns = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
                 ProductItem.ProductCount AS ProductCount,
                 ProductItem.ProductSum AS ProductSum,
                 RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
@@ -172,7 +175,7 @@ export const Items = () => {
                 NULL AS RepeatableProductCount,
                 NULL AS RepeatableProductSum
             `;
-            let productFilter = recipeItemType === null || recipeItemType.includes("2") ? `
+            let productFilter = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
                 LEFT JOIN (
                     SELECT ItemId, 
                     COUNT(RecipeItem.Quantity) AS "ProductCount", 
@@ -227,14 +230,11 @@ export const Items = () => {
                 ${productFilter}
 
                 WHERE (
-                    MobCount IS NOT NULL
-                    OR IngredientCount IS NOT NULL
-                    OR RepeatableIngredientCount IS NOT NULL
-                    OR ProductCount IS NOT NULL
-                    OR RepeatableProductCount IS NOT NULL
-                    -- OR Buy > 0
+                    ${innerFilter}
                 )
+
                 ${filter}
+
                 GROUP BY Item.Id
                 LIMIT 100;
             `;
@@ -243,51 +243,72 @@ export const Items = () => {
         }
     }, [db, searchParams]);
 
-    // update searchParams and the filter
-    const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setSubmittedTimestamp(Date.now());
-        const formData = new FormData(event.currentTarget);
+    // debounced item input value update
+    React.useEffect(() => {
+        const delayInputTimeoutId = setTimeout(() => {
+            if (filterDataLoaded) {
+                const newFilter = {
+                    ...filter,
+                    item: itemInputValue,
+                };
 
-        const formSearchFilter = {
-            item: formData.get("item")?.toString() ?? "",
-            itemType: formData.getAll("itemType"),
-            job: formData.getAll("job"),
-            recipeType: formData.getAll("recipeType"),
-            recipeItemType: formData.getAll("recipeItemType"),
+                setFilter(newFilter);
+                setSearchParams(formatSearchParams(newFilter));
+            }
+        }, 500);
+        return () => clearTimeout(delayInputTimeoutId);
+    }, [itemInputValue, filterDataLoaded, 500]);
+
+    // reset the form values and reload data
+    const handleReset = (event: React.SubmitEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setItemInputValue("");
+        setFilter({
+            item: "",
+            itemTypes: filter.itemTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
+            jobs: filter.jobs?.map(value => ({ id: value.id, name: value.name, checked: false })),
+            recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
+            recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: false }))
+        });
+
+        setSearchParams();
+    };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setItemInputValue(event.currentTarget.value);
+    };
+
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const changedFilter: SearchFilter = {
+            [event.currentTarget.name]: [{
+                id: Number(event.currentTarget.value) ?? 0,
+                checked: event.currentTarget.checked
+            }]
         };
 
-        setFilter({
-            ...mergeSearchFilter(filterData, {
-                item: formSearchFilter.item,
-                itemTypes: new Map<number, FilterItem>(formSearchFilter.itemType.map(value => [ Number(value), { checked: true }])),
-                jobs: new Map<number, FilterItem>(formSearchFilter.job.map(value => [ Number(value), { checked: true }])),
-                recipeTypes: new Map<number, FilterItem>(formSearchFilter.recipeType.map(value => [ Number(value), { checked: true }])),
-                recipeItemTypes: new Map<number, FilterItem>(formSearchFilter.recipeItemType.map(value => [ Number(value), { checked: true }])),
-            })
-        });
-
-        setSearchParams({
-            item: formSearchFilter.item,
-            itemType: formSearchFilter.itemType.join(","),
-            job: formSearchFilter.job.join(","),
-            recipeType: formSearchFilter.recipeType.join(","),
-            recipeItemType: formSearchFilter.recipeItemType.join(","),
-        });
+        const newFilter = mergeSearchFilter(filter, changedFilter);
+        setFilter(newFilter);
+        setSearchParams(formatSearchParams(newFilter));
     };
 
     return (
         <div>
-            <form id="filterForm" onSubmit={handleSubmit}>
-                <label>Search 
-                    <input name="item" type="text" />
+            <form id="filterForm" onReset={handleReset}>
+                <label>Search
+                    <input name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />
                 </label>
 
                 <fieldset>
                     <legend>Item type</legend>
-                    {Array.from(filter.itemTypes.entries()).map(([ key, value ], i) => (
+                    {filter.itemTypes?.map((value, i) => (
                         <label key={i}>
-                            <input defaultChecked={value.checked ?? false} name="itemType" type="checkbox" value={key.toString()} />
+                            <input
+                                checked={value?.checked}
+                                name="itemTypes"
+                                onChange={handleCheckboxChange}
+                                type="checkbox"
+                                value={value?.id}
+                            />
                             {value.name}
                         </label>
                     ))}
@@ -295,9 +316,15 @@ export const Items = () => {
 
                 <fieldset>
                     <legend>Component type</legend>
-                    {Array.from(filter.recipeItemTypes.entries()).map(([ key, value ], i) => (
+                    {filter.recipeItemTypes?.map((value, i) => (
                         <label key={i}>
-                            <input defaultChecked={value.checked ?? false} name="recipeItemType" type="checkbox" value={key.toString()} />
+                            <input
+                                checked={value?.checked}
+                                name="recipeItemTypes"
+                                onChange={handleCheckboxChange}
+                                type="checkbox"
+                                value={value?.id}
+                            />
                             {value.name}
                         </label>
                     ))}
@@ -305,9 +332,15 @@ export const Items = () => {
 
                 <fieldset>
                     <legend>Jobs</legend>
-                    {Array.from(filter.jobs.entries()).map(([ key, value ], i) => (
+                    {filter.jobs?.map((value, i) => (
                         <label key={i}>
-                            <input defaultChecked={value.checked ?? false} name="job" type="checkbox" value={key.toString()} />
+                            <input
+                                checked={value?.checked}
+                                name="jobs"
+                                onChange={handleCheckboxChange}
+                                type="checkbox"
+                                value={value?.id}
+                            />
                             {value.name}
                         </label>
                     ))}
@@ -315,19 +348,24 @@ export const Items = () => {
 
                 <fieldset>
                     <legend>Recipe type</legend>
-                    {Array.from(filter.recipeTypes.entries()).map(([ key, value ], i) => (
+                    {filter.recipeTypes?.map((value, i) => (
                         <label key={i}>
-                            <input defaultChecked={value.checked ?? false} name="recipeType" type="checkbox" value={key.toString()} />
+                            <input
+                                checked={value?.checked}
+                                name="recipeTypes"
+                                onChange={handleCheckboxChange}
+                                type="checkbox"
+                                value={value?.id}
+                            />
                             {value.name}
                         </label>
                     ))}
                 </fieldset>
-                <button type="submit">Search</button>
                 <button type="reset">Reset</button>
             </form>
 
             {data.map(({ columns, values }, i) => (
-                <ItemTable key={`${i}-${submittedTimestamp}`} columns={columns} filter={filter} values={values} />
+                <ItemTable key={`${i}`} columns={columns} filter={filter} values={values} />
             ))}
         </div>
     );
