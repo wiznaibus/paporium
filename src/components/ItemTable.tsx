@@ -10,21 +10,20 @@ const clamp = (value: number, min: number, max: number): number => (
 
 export const ItemTable = ({
     filter,
-    itemsPerPage: itemsPerPageProp = 100,
+    itemsPerPage = 100,
     values,
 }: {
     filter: SearchFilter,
-    itemsPerPage: number,
+    itemsPerPage?: number,
     values: SqlValue[][],
 }): ReactNode => {
-    const [itemsPerPage] = useState<number>(itemsPerPageProp);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
     useEffect(() => {
         setCurrentPage(1);
         setTotalPages(Math.ceil(values.length / itemsPerPage));
-    }, [values]);
+    }, [itemsPerPage, values]);
 
     const changePage = (page: number) => {
         setCurrentPage(clamp(page, 1, totalPages));

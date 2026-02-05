@@ -111,9 +111,9 @@ export const Items = () => {
             // we can't check if it can be purchased at a store yet
             // if it can't be purchased at a store or dropped by a monster, it's unobtainable
             //let innerFilter = `MobCount IS NOT NULL`;
-            
+
             let innerFilter = `TRUE`;
-            
+
             if (jobs || recipeTypes || recipeItemTypes) {
                 innerFilter = `
                     IngredientCount IS NOT NULL
@@ -154,9 +154,9 @@ export const Items = () => {
             `;
             let ingredientFilter = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
                 LEFT JOIN (
-                    SELECT ItemId, 
-                    COUNT(RecipeItem.Quantity) AS "IngredientCount", 
-                    SUM(RecipeItem.Quantity) AS "IngredientSum" 
+                    SELECT ItemId,
+                    COUNT(RecipeItem.Quantity) AS "IngredientCount",
+                    SUM(RecipeItem.Quantity) AS "IngredientSum"
                     FROM RecipeItem
                     JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
                     WHERE RecipeItem.RecipeItemTypeId = 1
@@ -166,9 +166,9 @@ export const Items = () => {
                 ) AS IngredientItem ON Item.Id = IngredientItem.ItemId
 
                 LEFT JOIN (
-                    SELECT ItemId, 
-                    COUNT(RecipeItem.Quantity) AS "RepeatableIngredientCount", 
-                    SUM(RecipeItem.Quantity) AS "RepeatableIngredientSum" 
+                    SELECT ItemId,
+                    COUNT(RecipeItem.Quantity) AS "RepeatableIngredientCount",
+                    SUM(RecipeItem.Quantity) AS "RepeatableIngredientSum"
                     FROM RecipeItem
                     JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
                     WHERE RecipeItem.RecipeItemTypeId = 1
@@ -190,9 +190,9 @@ export const Items = () => {
             `;
             let productFilter = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
                 LEFT JOIN (
-                    SELECT ItemId, 
-                    COUNT(RecipeItem.Quantity) AS "ProductCount", 
-                    SUM(RecipeItem.Quantity) AS "ProductSum" 
+                    SELECT ItemId,
+                    COUNT(RecipeItem.Quantity) AS "ProductCount",
+                    SUM(RecipeItem.Quantity) AS "ProductSum"
                     FROM RecipeItem
                     JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
                     WHERE RecipeItem.RecipeItemTypeId = 2
@@ -202,9 +202,9 @@ export const Items = () => {
                 ) AS ProductItem ON Item.Id = ProductItem.ItemId
 
                 LEFT JOIN (
-                    SELECT ItemId, 
-                    COUNT(RecipeItem.Quantity) AS "RepeatableProductCount", 
-                    SUM(RecipeItem.Quantity) AS "RepeatableProductSum" 
+                    SELECT ItemId,
+                    COUNT(RecipeItem.Quantity) AS "RepeatableProductCount",
+                    SUM(RecipeItem.Quantity) AS "RepeatableProductSum"
                     FROM RecipeItem
                     JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
                     WHERE RecipeItem.RecipeItemTypeId = 2
@@ -388,9 +388,9 @@ export const Items = () => {
                 <button type="reset">Select None</button>
             </form>
 
-            
-            {data.map(({ columns, values }, i) => (
-                <ItemTable key={i} columns={columns} filter={filter} values={values} />
+
+            {data.map(({ values }, i) => (
+                <ItemTable key={i} filter={filter} values={values} />
             ))}
         </div>
     );
