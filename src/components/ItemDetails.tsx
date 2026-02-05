@@ -42,35 +42,43 @@ export const ItemDetails = ({
 
             setDrops(db.exec(`
                 SELECT
+                MobDrop.MobId AS Id,
                 Mob.Name AS Mob,
+                MobDrop.Slot AS Slot,
                 MobDrop.Rate,
                 MobDrop.StealProtected
                 FROM MobDrop
                 JOIN Mob ON MobDrop.MobId = Mob.Id
                 JOIN Item ON MobDrop.ItemId = Item.Id
                 WHERE MobDrop.ItemId = ${id}
-                ORDER BY MobDrop.Rate DESC
+                ORDER BY MobDrop.Rate DESC, MobDrop.MobId ASC
             `).map(({ values }) => (
                 values.map((value) => ({
-                    mob: value[0],
-                    rate: value[1],
-                    stealProtected: value[2],
+                    mobId: value[0],
+                    mob: value[1],
+                    slot: value[2],
+                    rate: value[3],
+                    stealProtected: value[4],
                 }))
             ))[0]);
             
             setMvpDrops(db.exec(`
                 SELECT
+                MobMvpDrop.MobId AS Id,
                 Mob.Name AS Mob,
+                MobMvpDrop.Slot AS Slot,
                 MobMvpDrop.Rate
                 FROM MobMvpDrop
                 JOIN Mob ON MobMvpDrop.MobId = Mob.Id
                 JOIN Item ON MobMvpDrop.ItemId = Item.Id
                 WHERE MobMvpDrop.ItemId = ${id}
-                ORDER BY MobMvpDrop.Rate DESC
+                ORDER BY MobMvpDrop.Rate DESC, MobMvpDrop.MobId ASC
             `).map(({ values }) => (
                 values.map((value) => ({
-                    mob: value[0],
-                    rate: value[1],
+                    mobId: value[0],
+                    mob: value[1],
+                    slot: value[2],
+                    rate: value[3],
                 }))
             ))[0]);
 
@@ -91,7 +99,7 @@ export const ItemDetails = ({
 
             let recipeFilter = ``;
             recipeFilter += jobs ? `
-                AND (Recipe.JobId IN (${jobs}) OR Recipe.JobId IS NULL)
+                AND (Recipe.JobId IN (${jobs}))
             ` : ``;
             recipeFilter += recipeTypes ? `
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
@@ -166,7 +174,7 @@ export const ItemDetails = ({
                     <caption>Monster drops</caption>
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Id</th>
                             <th>Monster</th>
                             <th>Drop rate</th>
                             <th>Steal protected?</th>
@@ -174,10 +182,10 @@ export const ItemDetails = ({
                     </thead>
                     <tbody>
                         {drops.map(({
-                            mob, rate, stealProtected
-                        }: any, i: any) => 
-                            <tr key={i}>
-                                <td>{i + 1}</td>
+                            mobId, mob, slot, rate, stealProtected
+                        }: any) => 
+                            <tr key={`${mobId}-${slot}`}>
+                                <td>{mobId}</td>
                                 <td>{mob}</td>
                                 <td>{(rate/100).toFixed(2)}%</td>
                                 <td>{stealProtected === 1 ? 'Yes' : ''}</td>
@@ -192,17 +200,17 @@ export const ItemDetails = ({
                     <caption>MVP drops</caption>
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Id</th>
                             <th>Monster</th>
                             <th>Drop rate</th>
                         </tr>
                     </thead>
                     <tbody>
                         {mvpDrops.map(({
-                            mob, rate
-                        }: any, i: any) => 
-                            <tr key={i}>
-                                <td>{i + 1}</td>
+                            mobId, mob, slot, rate
+                        }: any) => 
+                            <tr key={`${mobId}-${slot}`}>
+                                <td>{mobId}</td>
                                 <td>{mob}</td>
                                 <td>{(rate/100).toFixed(2)}%</td>
                             </tr>

@@ -270,8 +270,19 @@ export const Items = () => {
             recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
             recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: false }))
         });
-
         setSearchParams();
+    };
+
+    const handleSelectAll = () => {
+        const newFilter = {
+            item: filter.item,
+            itemTypes: filter.itemTypes?.map(value => ({ id: value.id, name: value.name, checked: true })),
+            jobs: filter.jobs?.map(value => ({ id: value.id, name: value.name, checked: true })),
+            recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: true })),
+            recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: true }))
+        };
+        setFilter(newFilter);
+        setSearchParams(formatSearchParams(newFilter));
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -285,7 +296,6 @@ export const Items = () => {
                 checked: event.currentTarget.checked
             }]
         };
-
         const newFilter = mergeSearchFilter(filter, changedFilter);
         setFilter(newFilter);
         setSearchParams(formatSearchParams(newFilter));
@@ -293,7 +303,7 @@ export const Items = () => {
 
     return (
         <div>
-            <form id="filterForm" onReset={handleReset}>
+            <form id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
                 <label>Search
                     <input name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />
                 </label>
@@ -361,7 +371,8 @@ export const Items = () => {
                         </label>
                     ))}
                 </fieldset>
-                <button type="reset">Reset</button>
+                <button type="button" onClick={handleSelectAll}>Select All</button>
+                <button type="reset">Select None</button>
             </form>
 
             {data.map(({ columns, values }, i) => (
