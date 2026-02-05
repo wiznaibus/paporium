@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
-import initSqlJs from "sql.js";
-import type { Database } from "sql.js";
-import { type SearchFilter } from "../utilities/SearchFilter";
+import initSqlJs, { type Database } from "sql.js";
+import { useSearchParams } from 'react-router-dom';
 
 export const ItemDetails = ({
-    id,
-    filter
+    id
 }: {
-    id: number,
-    filter: SearchFilter
+    id: number
 }) => {
+    const [searchParams] = useSearchParams();
     const [db, setDb] = useState<Database | null>(null);
     const [drops, setDrops] = useState<any[]>([]);
     const [mvpDrops, setMvpDrops] = useState<any[]>([]);
@@ -87,9 +85,9 @@ export const ItemDetails = ({
                 JOIN RecipeType ON Recipe.RecipeTypeId = RecipeType.Id
                 WHERE Item.Id = ${id}
             `;
-
-            const jobs = Array.from(filter.jobs.entries()).filter(([ _key, value ]) => value.checked).map(([ key ]) => key).join(",");
-            const recipeTypes = Array.from(filter.recipeTypes.entries()).filter(([ _key, value ]) => value.checked).map(([ key ]) => key).join(",");
+            const jobs = searchParams.get("jobs") || null;
+            const recipeTypes = searchParams.get("recipeTypes") || null;
+            const recipeItemTypes = searchParams.get("recipeItemTypes") || null;
 
             let recipeFilter = ``;
             recipeFilter += jobs ? `
@@ -99,7 +97,7 @@ export const ItemDetails = ({
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
             ` : ``;
 
-            if (filter.recipeItemTypes?.get(1)?.checked || (!filter.recipeItemTypes?.get(1)?.checked && !filter.recipeItemTypes?.get(2)?.checked)) {
+            if (recipeItemTypes === null || recipeItemTypes.includes("1")) {
                     setRecipeIngredients(db.exec(`
                     ${baseQuery}
                     ${recipeFilter}
@@ -129,7 +127,7 @@ export const ItemDetails = ({
                 ))[0]);
             }
 
-            if (filter.recipeItemTypes?.get(2)?.checked || (!filter.recipeItemTypes?.get(1)?.checked && !filter.recipeItemTypes?.get(2)?.checked)) {
+            if (recipeItemTypes === null || recipeItemTypes.includes("2")) {
                     setRecipeProducts(db.exec(`
                     ${baseQuery}
                     ${recipeFilter}
@@ -159,7 +157,7 @@ export const ItemDetails = ({
                 ))[0]);
             }
         }
-    }, [db, filter]);
+    }, [db, searchParams]);
 
     return (
         <div>
