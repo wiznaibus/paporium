@@ -115,7 +115,7 @@ export const Items = () => {
                 OR RepeatableProductCount IS NOT NULL
             `;
             // show all items that are dropped by monsters if no filter is applied
-            innerFilter += !itemTypes && !jobs && !recipeTypes ? `
+            innerFilter += !itemTypes && !jobs && !recipeTypes && !recipeItemTypes ? `
                 OR MobCount IS NOT NULL
                 -- OR Buy > 0
             ` : ``;
