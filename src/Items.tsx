@@ -107,18 +107,31 @@ export const Items = () => {
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
             ` : ``;
 
-            // the innerFilter is grouped in parentheses
-            let innerFilter = `
-                IngredientCount IS NOT NULL
-                OR RepeatableIngredientCount IS NOT NULL
-                OR ProductCount IS NOT NULL
-                OR RepeatableProductCount IS NOT NULL
-            `;
-            // show all items that are dropped by monsters if no filter is applied
-            innerFilter += !itemTypes && !jobs && !recipeTypes && !recipeItemTypes ? `
-                OR MobCount IS NOT NULL
-                -- OR Buy > 0
-            ` : ``;
+            // filter by items that are dropped by monsters
+            // we can't check if it can be purchased at a store yet
+            // if it can't be purchased at a store or dropped by a monster, it's unobtainable
+            //let innerFilter = `MobCount IS NOT NULL`;
+            
+            let innerFilter = `TRUE`;
+            
+            if (jobs || recipeTypes) {
+                innerFilter = `
+                    IngredientCount IS NOT NULL
+                    OR RepeatableIngredientCount IS NOT NULL
+                    OR ProductCount IS NOT NULL
+                    OR RepeatableProductCount IS NOT NULL
+                `;
+            }
+            /* else { // (!jobs && !recipeTypes)
+                innerFilter += recipeItemTypes?.includes("1") ? `
+                    OR IngredientCount IS NOT NULL
+                    OR RepeatableIngredientCount IS NOT NULL
+                ` : ``;
+                innerFilter += recipeItemTypes?.includes("2") ? `
+                    OR ProductCount IS NOT NULL
+                    OR RepeatableProductCount IS NOT NULL
+                ` : ``;
+            } */
 
             let filter = ``;
             filter += item ? `
@@ -325,12 +338,12 @@ export const Items = () => {
                 </fieldset>
 
                 <fieldset>
-                    <legend>Component type</legend>
-                    {filter.recipeItemTypes?.map((value, i) => (
+                    <legend>Recipe type</legend>
+                    {filter.recipeTypes?.map((value, i) => (
                         <label key={i}>
                             <input
                                 checked={value?.checked}
-                                name="recipeItemTypes"
+                                name="recipeTypes"
                                 onChange={handleCheckboxChange}
                                 type="checkbox"
                                 value={value?.id}
@@ -357,12 +370,12 @@ export const Items = () => {
                 </fieldset>
 
                 <fieldset>
-                    <legend>Recipe type</legend>
-                    {filter.recipeTypes?.map((value, i) => (
+                    <legend>Component type</legend>
+                    {filter.recipeItemTypes?.map((value, i) => (
                         <label key={i}>
                             <input
                                 checked={value?.checked}
-                                name="recipeTypes"
+                                name="recipeItemTypes"
                                 onChange={handleCheckboxChange}
                                 type="checkbox"
                                 value={value?.id}
@@ -371,12 +384,17 @@ export const Items = () => {
                         </label>
                     ))}
                 </fieldset>
+
                 <button type="button" onClick={handleSelectAll}>Select All</button>
                 <button type="reset">Select None</button>
             </form>
 
+            
             {data.map(({ columns, values }, i) => (
-                <ItemTable key={`${i}`} columns={columns} filter={filter} values={values} />
+                <div key={i}>
+                    <p>{values.length >= 100 ? `${values.length}+` : values.length} Results</p>
+                    <ItemTable key={`${i}`} columns={columns} filter={filter} values={values} />
+                </div>
             ))}
         </div>
     );
