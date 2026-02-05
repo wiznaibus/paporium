@@ -114,7 +114,7 @@ export const Items = () => {
             
             let innerFilter = `TRUE`;
             
-            if (jobs || recipeTypes) {
+            if (jobs || recipeTypes || recipeItemTypes) {
                 innerFilter = `
                     IngredientCount IS NOT NULL
                     OR RepeatableIngredientCount IS NOT NULL
@@ -248,8 +248,7 @@ export const Items = () => {
 
                 ${filter}
 
-                GROUP BY Item.Id
-                LIMIT 100;
+                GROUP BY Item.Id;
             `;
 
             setData(db.exec(query));
@@ -391,10 +390,7 @@ export const Items = () => {
 
             
             {data.map(({ columns, values }, i) => (
-                <div key={i}>
-                    <p>{values.length >= 100 ? `${values.length}+` : values.length} Results</p>
-                    <ItemTable key={`${i}`} columns={columns} filter={filter} values={values} />
-                </div>
+                <ItemTable key={i} columns={columns} filter={filter} values={values} />
             ))}
         </div>
     );
