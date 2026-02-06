@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap');
+@import "tailwindcss";
+
+@layer components {
+    body {
+        font-family: "SN Pro", sans-serif;
+        font-weight: 400;
+        font-size: 12pt;
+    }
+
+    .results {
+        font-variant-numeric: tabular-nums;
+    }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { SqlValue } from "sql.js";
-import { type SearchFilter } from "../utilities/SearchFilter";
+import { useSearchParams } from 'react-router-dom';
+import { formatSearchParams, mergeSearchFilter, type SearchFilter } from "../utilities/SearchFilter";
 import { ItemRow } from "./ItemRow";
 
 // clamp a number between a min and max value
@@ -17,72 +18,50 @@ export const ItemTable = ({
     itemsPerPage?: number,
     values: SqlValue[][],
 }): ReactNode => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [totalPages, setTotalPages] = useState<number>(1);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
     useEffect(() => {
-        setCurrentPage(1);
+        setCurrentPage(Number(searchParams.get("page")) || 1);
         setTotalPages(Math.ceil(values.length / itemsPerPage));
-    }, [itemsPerPage, values]);
+    }, [itemsPerPage, searchParams, values]);
 
     const changePage = (page: number) => {
-        setCurrentPage(clamp(page, 1, totalPages));
+        const newPage = clamp(page, 1, totalPages);
+        setCurrentPage(newPage);
+        const newFilter = mergeSearchFilter(filter, {
+            page: newPage.toString(),
+        });
+        setSearchParams(formatSearchParams(newFilter));
     };
 
     return (
         <div>
             <p>{values.length} Results</p>
             <p>{`Showing ${clamp((currentPage - 1) * itemsPerPage + 1, 1, values.length)} to ${clamp(currentPage * itemsPerPage, 1, values.length)}`}</p>
-            <table>
-                <thead>
-                    <tr>
-                        <td colSpan={4}>Item</td>
-                        <td colSpan={5}>Details</td>
-                    </tr>
-                    <tr>
-                        <td>Id</td>
-                        <td colSpan={3}>Name</td>
-
-                        <td>Drop</td>
-                        <td colSpan={2}>Ingredient</td>
-                        <td colSpan={2}>Product</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>Buy</td>
-                        <td>Sell</td>
-                        <td>Weight</td>
-
-                        <td></td>
-                        <td>One-time</td>
-                        <td>Repeatable</td>
-                        <td>One-time</td>
-                        <td>Repeatable</td>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {
-                        values.map((row, i) => (i >= (currentPage - 1) * itemsPerPage && i < currentPage * itemsPerPage) && (
-                            <ItemRow
-                                key={`row-${i}-${row[1]}`}
-                                filter={filter}
-                                id={row[0]}
-                                name={row[1]}
-                                itemType={row[2]}
-                                buy={row[3]}
-                                sell={row[4]}
-                                weight={row[5]}
-                                mobCount={row[6]}
-                                ingredientSum={row[8]}
-                                repeatableIngredientSum={row[10]}
-                                productSum={row[12]}
-                                repeatableProductSum={row[14]}
-                            />
-                        ))
-                    }
-                </tbody>
-            </table>
+            <div className="results">
+                {
+                    values.map((row, i) => (i >= (currentPage - 1) * itemsPerPage && i < currentPage * itemsPerPage) && (
+                        <ItemRow
+                            key={`row-${i}-${row[1]}`}
+                            filter={filter}
+                            id={row[0]}
+                            name={row[1]}
+                            itemTypeId={row[2]}
+                            itemType={row[3]}
+                            buy={row[4]}
+                            sell={row[5]}
+                            weight={row[6]}
+                            mobCount={row[7]}
+                            ingredientSum={row[8]}
+                            repeatableIngredientSum={row[11]}
+                            productSum={row[13]}
+                            repeatableProductSum={row[15]}
+                        />
+                    ))
+                }
+            </div>
             <button type="button" onClick={() => changePage(1)}>First Page</button>
             <button type="button" onClick={() => changePage(currentPage - 1)}>Previous Page</button>
             <button type="button" onClick={() => changePage(currentPage + 1)}>Next Page</button>

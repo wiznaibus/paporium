@@ -3,6 +3,7 @@ import initSqlJs, { type Database, type QueryExecResult } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
 import { mergeSearchFilter, formatSearchParams, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { ItemTable } from "./components/ItemTable";
+import './index.css';
 
 export const Items = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -218,6 +219,7 @@ export const Items = () => {
                 SELECT
                 Item.Id,
                 Item.Name,
+                Item.ItemTypeId AS ItemTypeId,
                 ItemType.Name AS ItemType,
                 Item.Buy,
                 Item.Sell,
@@ -314,7 +316,7 @@ export const Items = () => {
     };
 
     return (
-        <div>
+        <div className="text-white bg-cyan-900">
             <form id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
                 <label>Search
                     <input name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />
