@@ -11,4 +11,8 @@
     .results {
         font-variant-numeric: tabular-nums;
     }
+
+    .rotate-text-90 {
+        writing-mode: vertical-rl;
+    }
 }

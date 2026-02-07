@@ -1,5 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { ItemDetails } from "./ItemDetails";
+import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { Icon } from "./Icon";
 
 const getBadgeStyles = (itemTypeId: number) => {
@@ -47,27 +46,38 @@ export const ItemRow = ({
     repeatableIngredientSum,
     productSum,
     repeatableProductSum,
-    overchargeable
-}: any): ReactNode => {
+    overchargeable,
+    setSelectedItem,
+}: {
+    id: number,
+    name?: string,
+    itemType?: string,
+    itemTypeId: number,
+    buy?: number,
+    sell?: number,
+    weight?: number,
+    mobCount?: number,
+    ingredientSum?: number,
+    repeatableIngredientSum?: number,
+    productSum?: number,
+    repeatableProductSum?: number,
+    overchargeable: number,
+    setSelectedItem?: Dispatch<SetStateAction<number>>
+}): ReactNode => {
     const [hasDetails, setHasDetails] = useState<boolean>(false);
-    const [isOpen, setIsOpen] = useState<boolean>(false);
 
     useEffect(() => {
         setHasDetails(
-            mobCount > 0
-            || ingredientSum > 0
-            || repeatableIngredientSum > 0
-            || productSum > 0
-            || repeatableProductSum > 0
+            (mobCount !== undefined && mobCount > 0)
+            || (ingredientSum !== undefined && ingredientSum > 0)
+            || (repeatableIngredientSum !== undefined && repeatableIngredientSum > 0)
+            || (productSum !== undefined && productSum > 0)
+            || (repeatableProductSum !== undefined && repeatableProductSum> 0)
         )
     }, [mobCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
 
-    const handleToggle = (event: React.ToggleEvent<HTMLDetailsElement>) => {
-        setIsOpen(event.newState === "open");
-    };
-
     return (
-        <div className="w-6xl flex mx-2 my-2.5">
+        <div className="flex mx-2 my-2.5">
             <div className="grow relative flex text-sm text-white bg-pink-600 border border-pink-600 shadow shadow-neutral-800/50 rounded-lg">
                 <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 mr-0 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
                     <img alt={name} onError={(event) => {
@@ -76,9 +86,9 @@ export const ItemRow = ({
                 </div>
                 <div className="grow grid grid-cols-3 grid-rows-3 gap-2 md:grid-cols-8 md:grid-rows-1 md:gap-0">
                     <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
-                        <div className="px-2 col-span-3 flex flex-row items-center gap-1">
+                        <div className="px-2 col-span-3 flex flex-row items-center gap-1 truncate">
                             <div className="basis-10 text-lg text-amber-300">{id}</div>
-                            <div className="grow text-lg font-semibold">{name}</div>
+                            <div className="grow text-lg font-semibold overflow-hidden text-ellipsis" title={name}>{name}</div>
                             <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(itemTypeId)}`}>
                                 {itemType}
                             </div>
@@ -86,9 +96,9 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Buy</div>
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Sell</div>
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Weight</div>
-                        <div className="flex items-center md:rounded-tl-lg px-2 md:py-1 bg-pink-400">{buy?.toLocaleString()}z</div>
-                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">{sell?.toLocaleString()}z</div>
-                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">{weight?.toLocaleString()}</div>
+                        <div className="flex items-center md:rounded-tl-lg px-2 md:py-1 bg-pink-400" title={`${buy?.toLocaleString()}z`}>{buy?.toLocaleString()}z</div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700" title={`${sell?.toLocaleString()}z`}>{sell?.toLocaleString()}z</div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700" title={weight?.toLocaleString()}>{weight?.toLocaleString()}</div>
                     </div>
                     <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
                         <div className="px-2 md:border-l md:border-pink-200 col-span-3 flex items-center text-base font-semibold">How to obtain</div>
@@ -97,20 +107,20 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
                             {mobCount && <div className="flex items-center">
-                                <Icon className="text-amber-100" name="drop" />
-                                {mobCount?.toLocaleString()}
+                                <Icon className="shrink-0 text-amber-100" name="drop" />
+                                <span className="overflow-hidden text-ellipsis" title={mobCount?.toLocaleString()}>{mobCount?.toLocaleString()}</span>
                             </div>}
                         </div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
                             {productSum && <div className="flex items-center">
-                                <Icon className="text-amber-100" name="star" />
-                                x{productSum?.toLocaleString()}
+                                <Icon className="shrink-0 text-amber-100" name="star" />
+                                <span className="overflow-hidden text-ellipsis" title={`x${productSum?.toLocaleString()}`}>x{productSum?.toLocaleString()}</span>
                             </div>}
                         </div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
                             {repeatableProductSum && <div className="flex items-center">
-                                <Icon className="text-amber-100" name="repeat" />
-                                x{repeatableProductSum?.toLocaleString()}
+                                <Icon className="shrink-0 text-amber-100" name="repeat" />
+                                <span className="overflow-hidden text-ellipsis" title={`x${repeatableProductSum?.toLocaleString()}`}>x{repeatableProductSum?.toLocaleString()}</span>
                             </div>}
                         </div>
                     </div>
@@ -120,14 +130,14 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
                         <div className="flex rounded-bl-lg md:rounded-none items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
                             {ingredientSum && <div className="flex items-center">
-                                <Icon className="text-amber-100" name="star" />
-                                x{ingredientSum?.toLocaleString()}
+                                <Icon className="shrink-0 text-amber-100" name="star" />
+                                <span className="overflow-hidden text-ellipsis" title={`x${ingredientSum?.toLocaleString()}`}>x{ingredientSum?.toLocaleString()}</span>
                             </div>}
                         </div>
                         <div className="flex items-center md:rounded-br-lg px-2 md:py-1 bg-pink-400 border-l border-pink-700">
-                            {repeatableIngredientSum && <div className="flex items-center">
-                                <Icon className="text-amber-100" name="repeat" />
-                                x{repeatableIngredientSum?.toLocaleString()}
+                            {repeatableIngredientSum && <div className="flex items-center overflow-hidden">
+                                <Icon className="shrink-0 text-amber-100" name="repeat" />
+                                <span className="overflow-hidden text-ellipsis" title={`x${repeatableIngredientSum?.toLocaleString()}`}>x{repeatableIngredientSum?.toLocaleString()}</span>
                             </div>}
                         </div>
                     </div>
@@ -144,30 +154,17 @@ export const ItemRow = ({
                 }
             </div>
 
-            <div className="flex items-center -ml-1 w-7.5">
+            <div className="hidden xl:flex items-center -ml-1 w-7.5">
                 {hasDetails && (
-                    <div className="flex items-center pl-1 pr-1 hover:pl-1.5 bg-cyan-600 hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md">
+                    <button className="cursor-pointer flex items-center pl-1 pr-1 hover:pl-1.5 bg-cyan-600 hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md" onClick={() => setSelectedItem?.(id)} type="button">
                         <div className="flex items-center justify-center text-sm rotate-text-90 rotate-180">
-                            <Icon className="text-amber-100" name="double-arrow-left" sizeClass="size-4" />
+                            <Icon className="shrink-0 text-amber-100" name="double-arrow-left" sizeClass="size-4" />
                             Details
-                            <Icon className="text-amber-100" name="double-arrow-left" sizeClass="size-4" />
+                            <Icon className="shrink-0 text-amber-100" name="double-arrow-left" sizeClass="size-4" />
                         </div>
-                    </div>
+                    </button>
                 )}
             </div>
-            {/* <tr>
-            <td colSpan={8}>
-                <details onToggle={handleToggle}>
-                    <summary>Details</summary>
-                    {
-                        isOpen && <ItemDetails
-                            key={`${id}-${name}`}
-                            id={id}
-                        />
-                    }
-                </details>
-            </td>
-        </tr> */}
         </div>
     );
 };

@@ -5,6 +5,7 @@ import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFi
 import { ItemTable } from "./components/ItemTable";
 import './index.css';
 import { ItemFilter } from "./components/ItemFilter";
+import { ItemDetails } from "./components/ItemDetails";
 
 export const Items = () => {
     const [searchParams] = useSearchParams();
@@ -17,6 +18,7 @@ export const Items = () => {
         recipeItemTypes: [],
         recipeTypes: [],
     });
+    const [selectedItem, setSelectedItem] = useState<number>(0);
     const [filterDataLoaded, setFilterDataLoaded] = useState<boolean>(false);
 
     // load the database
@@ -250,11 +252,20 @@ export const Items = () => {
     }, [db, filter]);
 
     return (
-        <div>
-            <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
-            {data.map(({ values }, i) => (
-                <ItemTable key={i} filter={filter} values={values} />
-            ))}
+        <div className="flex gap-1">
+            <div className="w-full xl:w-4xl xl:min-w-4xl">
+                <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
+                {data.map(({ values }, i) => (
+                    <ItemTable key={i} filter={filter} setSelectedItem={setSelectedItem} values={values} />
+                ))}
+            </div>
+            <div className="relative hidden xl:flex">
+                {selectedItem > 0 && (
+                    <div className="fixed h-screen overflow-y-auto overscroll-contain">
+                        <ItemDetails id={selectedItem} />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
