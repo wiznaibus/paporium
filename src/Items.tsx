@@ -115,13 +115,27 @@ export const Items = () => {
 
             let innerFilter = `TRUE`;
 
-            if (jobs || recipeTypes || recipeItemTypes) {
+            if (jobs || recipeTypes) {
                 innerFilter = `
                     IngredientCount IS NOT NULL
                     OR RepeatableIngredientCount IS NOT NULL
                     OR ProductCount IS NOT NULL
                     OR RepeatableProductCount IS NOT NULL
                 `;
+            }
+
+            if (recipeItemTypes) {
+                const ingredientFilter = recipeItemTypes.includes("1") ? `
+                    (IngredientCount IS NOT NULL
+                    OR RepeatableIngredientCount IS NOT NULL)
+                ` : null;
+
+                const productFilter = recipeItemTypes.includes("2") ? `
+                    (ProductCount IS NOT NULL
+                    OR RepeatableProductCount IS NOT NULL)
+                ` : null;
+
+                innerFilter = [ingredientFilter, productFilter].filter(Boolean).join(" AND ");
             }
 
             let filter = ``;
@@ -132,19 +146,48 @@ export const Items = () => {
                 AND Item.ItemTypeId IN (${itemTypes})
             ` : ``;
 
-            // include ingredients
-            let ingredientColumns = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
+            const query = `
+                SELECT
+                Item.Id,
+                Item.Name,
+                Item.ItemTypeId AS ItemTypeId,
+                ItemType.Name AS ItemType,
+                Item.Buy,
+                Item.Sell,
+                Item.Weight,
+                SUM(MobDrop.MobCount) AS MobCount,
                 IngredientItem.IngredientCount AS IngredientCount,
                 IngredientItem.IngredientSum AS IngredientSum,
                 RepeatableIngredientItem.RepeatableIngredientCount AS RepeatableIngredientCount,
                 RepeatableIngredientItem.RepeatableIngredientSum AS RepeatableIngredientSum,
-            ` : `
-                NULL AS IngredientCount,
-                NULL AS IngredientSum,
-                NULL AS RepeatableIngredientCount,
-                NULL AS RepeatableIngredientSum,
-            `;
-            let ingredientFilter = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
+                ProductItem.ProductCount AS ProductCount,
+                ProductItem.ProductSum AS ProductSum,
+                RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
+                RepeatableProductItem.RepeatableProductSum AS RepeatableProductSum,
+                CASE
+					WHEN (
+                        ItemTypeId = 6
+                        AND Sell > 0
+                        AND MobCount > 0
+                        AND (IngredientCount IS NULL OR IngredientCount = 0)
+                        AND (RepeatableIngredientCount IS NULL OR RepeatableIngredientCount = 0)
+                    )
+                    THEN TRUE
+					ELSE FALSE
+				END AS Overchargeable
+                FROM Item
+                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.Id
+
+                LEFT JOIN (
+                    SELECT ItemId,
+                    1 AS MobCount
+                    FROM MobDrop
+                    UNION ALL
+                    SELECT ItemId,
+                    1 AS MobCount
+                    FROM MobMvpDrop
+                ) AS MobDrop ON Item.Id = MobDrop.ItemId
+
                 LEFT JOIN (
                     SELECT ItemId,
                     COUNT(RecipeItem.Quantity) AS "IngredientCount",
@@ -168,25 +211,7 @@ export const Items = () => {
                     ${recipeFilter}
                     GROUP BY ItemId
                 ) AS RepeatableIngredientItem ON Item.Id = RepeatableIngredientItem.ItemId
-            ` : ``;
-            let overchargeIngredients = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
-                AND (IngredientCount IS NULL OR IngredientCount = 0)
-                AND (RepeatableIngredientCount IS NULL OR RepeatableIngredientCount = 0)
-            ` : ``;
 
-            // include products
-            let productColumns = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
-                ProductItem.ProductCount AS ProductCount,
-                ProductItem.ProductSum AS ProductSum,
-                RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
-                RepeatableProductItem.RepeatableProductSum AS RepeatableProductSum,
-            ` : `
-                NULL AS ProductCount,
-                NULL AS ProductSum,
-                NULL AS RepeatableProductCount,
-                NULL AS RepeatableProductSum,
-            `;
-            let productFilter = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
                 LEFT JOIN (
                     SELECT ItemId,
                     COUNT(RecipeItem.Quantity) AS "ProductCount",
@@ -210,46 +235,6 @@ export const Items = () => {
                     ${recipeFilter}
                     GROUP BY ItemId
                 ) AS RepeatableProductItem ON Item.Id = RepeatableProductItem.ItemId
-            ` : ``;
-
-            const query = `
-                SELECT
-                Item.Id,
-                Item.Name,
-                Item.ItemTypeId AS ItemTypeId,
-                ItemType.Name AS ItemType,
-                Item.Buy,
-                Item.Sell,
-                Item.Weight,
-                SUM(MobDrop.MobCount) AS MobCount,
-                ${ingredientColumns}
-                ${productColumns}
-                CASE
-					WHEN (
-                        ItemTypeId = 6
-                        AND Sell > 0
-                        AND MobCount > 0
-                        ${overchargeIngredients}
-                    )
-                    THEN TRUE
-					ELSE FALSE
-				END AS Overchargeable
-                FROM Item
-                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.Id
-
-                LEFT JOIN (
-                    SELECT ItemId,
-                    1 AS MobCount
-                    FROM MobDrop
-                    UNION ALL
-                    SELECT ItemId,
-                    1 AS MobCount
-                    FROM MobMvpDrop
-                ) AS MobDrop ON Item.Id = MobDrop.ItemId
-
-                ${ingredientFilter}
-
-                ${productFilter}
 
                 WHERE (
                     ${innerFilter}
