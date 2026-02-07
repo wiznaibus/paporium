@@ -58,6 +58,7 @@ export const ItemTable = ({
                             repeatableIngredientSum={row[11]}
                             productSum={row[13]}
                             repeatableProductSum={row[15]}
+                            overchargeable={row[16]}
                         />
                     ))
                 }

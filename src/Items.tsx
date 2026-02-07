@@ -123,16 +123,6 @@ export const Items = () => {
                     OR RepeatableProductCount IS NOT NULL
                 `;
             }
-            /* else { // (!jobs && !recipeTypes)
-                innerFilter += recipeItemTypes?.includes("1") ? `
-                    OR IngredientCount IS NOT NULL
-                    OR RepeatableIngredientCount IS NOT NULL
-                ` : ``;
-                innerFilter += recipeItemTypes?.includes("2") ? `
-                    OR ProductCount IS NOT NULL
-                    OR RepeatableProductCount IS NOT NULL
-                ` : ``;
-            } */
 
             let filter = ``;
             filter += item ? `
@@ -142,6 +132,7 @@ export const Items = () => {
                 AND Item.ItemTypeId IN (${itemTypes})
             ` : ``;
 
+            // include ingredients
             let ingredientColumns = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
                 IngredientItem.IngredientCount AS IngredientCount,
                 IngredientItem.IngredientSum AS IngredientSum,
@@ -178,16 +169,22 @@ export const Items = () => {
                     GROUP BY ItemId
                 ) AS RepeatableIngredientItem ON Item.Id = RepeatableIngredientItem.ItemId
             ` : ``;
+            let overchargeIngredients = recipeItemTypes === null || recipeItemTypes.includes("1") ? `
+                AND (IngredientCount IS NULL OR IngredientCount = 0)
+                AND (RepeatableIngredientCount IS NULL OR RepeatableIngredientCount = 0)
+            ` : ``;
+
+            // include products
             let productColumns = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
                 ProductItem.ProductCount AS ProductCount,
                 ProductItem.ProductSum AS ProductSum,
                 RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
-                RepeatableProductItem.RepeatableProductSum AS RepeatableProductSum
+                RepeatableProductItem.RepeatableProductSum AS RepeatableProductSum,
             ` : `
                 NULL AS ProductCount,
                 NULL AS ProductSum,
                 NULL AS RepeatableProductCount,
-                NULL AS RepeatableProductSum
+                NULL AS RepeatableProductSum,
             `;
             let productFilter = recipeItemTypes === null || recipeItemTypes.includes("2") ? `
                 LEFT JOIN (
@@ -227,6 +224,16 @@ export const Items = () => {
                 SUM(MobDrop.MobCount) AS MobCount,
                 ${ingredientColumns}
                 ${productColumns}
+                CASE
+					WHEN (
+                        ItemTypeId = 6
+                        AND Sell > 0
+                        AND MobCount > 0
+                        ${overchargeIngredients}
+                    )
+                    THEN TRUE
+					ELSE FALSE
+				END AS Overchargeable
                 FROM Item
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.Id
 
@@ -316,7 +323,7 @@ export const Items = () => {
     };
 
     return (
-        <div className="text-white bg-cyan-900">
+        <div>
             <form id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
                 <label>Search
                     <input name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />

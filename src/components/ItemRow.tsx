@@ -46,18 +46,10 @@ export const ItemRow = ({
     ingredientSum,
     repeatableIngredientSum,
     productSum,
-    repeatableProductSum
+    repeatableProductSum,
+    overchargeable
 }: any): ReactNode => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    console.log(itemTypeId, sell, mobCount, ingredientSum, repeatableIngredientSum);
-    const overchargeable = (
-        itemTypeId === 6 // etc
-        && sell > 0
-        && mobCount > 0
-        && (!ingredientSum || ingredientSum === 0)
-        && (!repeatableIngredientSum || repeatableIngredientSum === 0)
-    );
-    console.log(overchargeable);
 
     const handleToggle = (event: React.ToggleEvent<HTMLDetailsElement>) => {
         setIsOpen(event.newState === "open");
@@ -65,67 +57,77 @@ export const ItemRow = ({
 
     return (
         <>
-            <div className="relative flex gap-2 max-w-5xl text-sm text-white bg-pink-600 shadow shadow-neutral-800/50 mx-2 my-2.5  rounded-lg">
-                <div className="shrink-0 flex items-center justify-center h-8 w-8 m-1 mr-0 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
-                    <img onError={(event) => {
+            <div className="relative flex max-w-5xl text-sm text-white bg-pink-600 shadow shadow-neutral-800/50 mx-2 my-2.5 rounded-lg">
+                <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 mr-0 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
+                    <img alt={name} onError={(event) => {
                         event.currentTarget.src = "./assets/images/item/0.png";
-                    }} src={`./assets/images/item/${id}.png`} />
+                    }} src={`./assets/images/item/${id}.png`} title={name} />
                 </div>
-                <div className="grow grid grid-cols-8">
-                    <div className="px-2 col-span-3 flex flex-row items-center gap-1">
-                        <div className="basis-10 text-lg text-amber-300">{id}</div>
-                        <div className="grow text-lg font-semibold">{name}</div>
-                        <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(itemTypeId)}`}>
-                            {itemType}
+                <div className="grow grid grid-cols-3 grid-rows-3 gap-2 md:grid-cols-8 md:grid-rows-1 md:gap-0">
+                    <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
+                        <div className="px-2 col-span-3 flex flex-row items-center gap-1">
+                            <div className="basis-10 text-lg text-amber-300">{id}</div>
+                            <div className="grow text-lg font-semibold">{name}</div>
+                            <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(itemTypeId)}`}>
+                                {itemType}
+                            </div>
+                        </div>
+                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Buy</div>
+                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Sell</div>
+                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Weight</div>
+                        <div className="flex items-center md:rounded-tl-lg px-2 md:py-1 bg-pink-400">{buy?.toLocaleString()}z</div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">{sell?.toLocaleString()}z</div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">{weight?.toLocaleString()}</div>
+                    </div>
+                    <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
+                        <div className="px-2 md:border-l md:border-pink-200 col-span-3 flex items-center text-base font-semibold">How to obtain</div>
+                        <div className="px-2 md:pb-0.5 md:border-l md:border-pink-200 text-sm text-amber-100">Drop</div>
+                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">One-time</div>
+                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
+                            {mobCount && <div className="flex items-center">
+                                <Icon className="text-amber-100" name="drop" />
+                                {mobCount?.toLocaleString()}
+                            </div>}
+                        </div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
+                            {productSum && <div className="flex items-center">
+                                <Icon className="text-amber-100" name="star" />
+                                x{productSum?.toLocaleString()}
+                            </div>}
+                        </div>
+                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
+                            {repeatableProductSum && <div className="flex items-center">
+                                <Icon className="text-amber-100" name="repeat" />
+                                x{repeatableProductSum?.toLocaleString()}
+                            </div>}
                         </div>
                     </div>
-                    <div className="px-2 border-l border-pink-200 col-span-3 flex items-center text-base font-semibold">How to obtain</div>
-                    <div className="px-2 border-l border-pink-200 col-span-2 flex items-center text-base font-semibold">Used for</div>
-                    <div className="px-2 pb-0.5 text-sm text-amber-100">Buy</div>
-                    <div className="px-2 pb-0.5 text-sm text-amber-100">Sell</div>
-                    <div className="px-2 pb-0.5 text-sm text-amber-100">Weight</div>
-                    <div className="px-2 pb-0.5 border-l border-pink-200 text-sm text-amber-100">Drop</div>
-                    <div className="px-2 pb-0.5 text-sm text-amber-100">One-time</div>
-                    <div className="px-2 pb-0.5 text-sm text-amber-100">Repeat</div>
-                    <div className="px-2 pb-0.5 border-l border-pink-200 text-sm text-amber-100">One-time</div>
-                    <div className="px-2 pb-0.5 text-sm text-amber-100">Repeat</div>
-
-                    <div className="rounded-tl-lg px-2 py-1 bg-pink-400">{buy?.toLocaleString()}z</div>
-                    <div className="px-2 py-1 bg-pink-400 border-l border-pink-700">{sell?.toLocaleString()}z</div>
-                    <div className="px-2 py-1 bg-pink-400 border-l border-pink-700">{weight?.toLocaleString()}</div>
-                    <div className="px-2 py-1 bg-pink-400 border-l border-pink-200 ">
-                        {mobCount && <div className="flex items-center">
-                            <Icon className="text-amber-100" name="drop" />
-                            {mobCount?.toLocaleString()}
-                        </div>}
+                    <div className="col-span-2 grid grid-cols-2  grid-rows-[1fr_min-content_1fr]">
+                        <div className="px-2 md:border-l md:border-pink-200 col-span-2 flex items-center text-base font-semibold">Used for</div>
+                        <div className="px-2 md:pb-0.5 md:border-l md:border-pink-200 text-sm text-amber-100">One-time</div>
+                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
+                        <div className="flex rounded-bl-lg md:rounded-none items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
+                            {ingredientSum && <div className="flex items-center">
+                                <Icon className="text-amber-100" name="star" />
+                                x{ingredientSum?.toLocaleString()}
+                            </div>}
+                        </div>
+                        <div className="flex items-center md:rounded-br-lg px-2 md:py-1 bg-pink-400 border-l border-pink-700">
+                            {repeatableIngredientSum && <div className="flex items-center">
+                                <Icon className="text-amber-100" name="repeat" />
+                                x{repeatableIngredientSum?.toLocaleString()}
+                            </div>}
+                        </div>
                     </div>
-                    <div className="px-2 py-1 bg-pink-400 border-l border-pink-700">
-                        {productSum && <div className="flex items-center">
-                            <Icon className="text-amber-100" name="star" />
-                            x{productSum?.toLocaleString()}
-                        </div>}
-                    </div>
-                    <div className="px-2 py-1 bg-pink-400 border-l border-pink-700">
-                        {repeatableProductSum && <div className="flex items-center">
-                            <Icon className="text-amber-100" name="repeat" />
-                            x{repeatableProductSum?.toLocaleString()}
-                        </div>}
-                    </div>
-                    <div className="px-2 py-1 bg-pink-400 border-l border-pink-200 ">
-                        {ingredientSum && <div className="flex items-center">
-                            <Icon className="text-amber-100" name="star" />
-                            x{ingredientSum?.toLocaleString()}
-                        </div>}
-                    </div>
-                    <div className="rounded-br-lg px-2 py-1 bg-pink-400 border-l border-pink-700">
-                        {repeatableIngredientSum && <div className="flex items-center">
-                            <Icon className="text-amber-100" name="repeat" />
-                            x{repeatableIngredientSum?.toLocaleString()}
-                        </div>}
+                    <div className="md:hidden flex items-center">
+                        <img className="h-15" alt={name} onError={(event) => {
+                            event.currentTarget.src = "./assets/images/item/0.png";
+                        }} src={`./assets/images/collection/${id}.png`} title={name} />
                     </div>
                 </div>
-                {overchargeable && <div className="absolute -top-1.5 -right-1.5">
-                    <img src="./assets/icons/overcharge.png" />
+                {overchargeable === 1 && <div className="absolute -bottom-1.5 md:-top-1.5 -right-1.5">
+                    <img alt="overchargeable" src="./assets/icons/overcharge.png" title="Overcharge" />
                 </div>}
             </div>
             {/* <tr>
