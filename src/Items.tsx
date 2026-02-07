@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import initSqlJs, { type Database, type QueryExecResult } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
-import { mergeSearchFilter, formatSearchParams, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
+import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { ItemTable } from "./components/ItemTable";
 import './index.css';
+import { ItemFilter } from "./components/ItemFilter";
 
 export const Items = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const [db, setDb] = useState<Database | null>(null);
     const [data, setData] = useState<QueryExecResult[]>([]);
-    const [itemInputValue, setItemInputValue] = useState<string>("");
     const [filter, setFilter] = useState<SearchFilter>({
         item: "",
         itemTypes: [],
@@ -72,7 +72,6 @@ export const Items = () => {
             // load filter data from searchParams
             const parsedSearchParams = parseSearchParams(searchParams);
 
-            setItemInputValue(parsedSearchParams.item ?? "");
             const searchParamsFilterItems: SearchFilter = {
                 item: parsedSearchParams.item,
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
@@ -90,15 +89,16 @@ export const Items = () => {
         }
     }, [db]);
 
-
     // load items with the applied filter
     useEffect(() => {
         if (db) {
-            const item = searchParams.get("item") || null;
-            const itemTypes = searchParams.get("itemTypes") || null;
-            const jobs = searchParams.get("jobs") || null;
-            const recipeTypes = searchParams.get("recipeTypes") || null;
-            const recipeItemTypes = searchParams.get("recipeItemTypes") || null;
+            const {
+                item,
+                itemTypes,
+                jobs,
+                recipeItemTypes,
+                recipeTypes,
+            } = formatSearchParams(filter);
 
             let recipeFilter = ``;
             recipeFilter += jobs ? `
@@ -138,11 +138,11 @@ export const Items = () => {
                 innerFilter = [ingredientFilter, productFilter].filter(Boolean).join(" AND ");
             }
 
-            let filter = ``;
-            filter += item ? `
+            let outerFilter = ``;
+            outerFilter += item ? `
                 AND (Item.Name LIKE '%${item}%' OR Item.Id LIKE '%${item}%')
             ` : ``;
-            filter += itemTypes ? `
+            outerFilter += itemTypes ? `
                 AND Item.ItemTypeId IN (${itemTypes})
             ` : ``;
 
@@ -240,149 +240,18 @@ export const Items = () => {
                     ${innerFilter}
                 )
 
-                ${filter}
+                ${outerFilter}
 
                 GROUP BY Item.Id;
             `;
 
             setData(db.exec(query));
         }
-    }, [db, searchParams]);
-
-    // debounced item input value update
-    React.useEffect(() => {
-        const delayInputTimeoutId = setTimeout(() => {
-            if (filterDataLoaded) {
-                const newFilter = {
-                    ...filter,
-                    item: itemInputValue,
-                };
-
-                setFilter(newFilter);
-                setSearchParams(formatSearchParams(newFilter));
-            }
-        }, 500);
-        return () => clearTimeout(delayInputTimeoutId);
-    }, [itemInputValue, filterDataLoaded, 500]);
-
-    // reset the form values and reload data
-    const handleReset = (event: React.SubmitEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setItemInputValue("");
-        setFilter({
-            item: "",
-            itemTypes: filter.itemTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
-            jobs: filter.jobs?.map(value => ({ id: value.id, name: value.name, checked: false })),
-            recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
-            recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: false }))
-        });
-        setSearchParams();
-    };
-
-    const handleSelectAll = () => {
-        const newFilter = {
-            item: filter.item,
-            itemTypes: filter.itemTypes?.map(value => ({ id: value.id, name: value.name, checked: true })),
-            jobs: filter.jobs?.map(value => ({ id: value.id, name: value.name, checked: true })),
-            recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: true })),
-            recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: true }))
-        };
-        setFilter(newFilter);
-        setSearchParams(formatSearchParams(newFilter));
-    };
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setItemInputValue(event.currentTarget.value);
-    };
-
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const changedFilter: SearchFilter = {
-            [event.currentTarget.name]: [{
-                id: Number(event.currentTarget.value) ?? 0,
-                checked: event.currentTarget.checked
-            }]
-        };
-        const newFilter = mergeSearchFilter(filter, changedFilter);
-        setFilter(newFilter);
-        setSearchParams(formatSearchParams(newFilter));
-    };
+    }, [db, filter]);
 
     return (
         <div>
-            <form id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
-                <label>Search
-                    <input name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />
-                </label>
-
-                <fieldset>
-                    <legend>Item type</legend>
-                    {filter.itemTypes?.map((value, i) => (
-                        <label key={i}>
-                            <input
-                                checked={value?.checked}
-                                name="itemTypes"
-                                onChange={handleCheckboxChange}
-                                type="checkbox"
-                                value={value?.id}
-                            />
-                            {value.name}
-                        </label>
-                    ))}
-                </fieldset>
-
-                <fieldset>
-                    <legend>Recipe type</legend>
-                    {filter.recipeTypes?.map((value, i) => (
-                        <label key={i}>
-                            <input
-                                checked={value?.checked}
-                                name="recipeTypes"
-                                onChange={handleCheckboxChange}
-                                type="checkbox"
-                                value={value?.id}
-                            />
-                            {value.name}
-                        </label>
-                    ))}
-                </fieldset>
-
-                <fieldset>
-                    <legend>Jobs</legend>
-                    {filter.jobs?.map((value, i) => (
-                        <label key={i}>
-                            <input
-                                checked={value?.checked}
-                                name="jobs"
-                                onChange={handleCheckboxChange}
-                                type="checkbox"
-                                value={value?.id}
-                            />
-                            {value.name}
-                        </label>
-                    ))}
-                </fieldset>
-
-                <fieldset>
-                    <legend>Component type</legend>
-                    {filter.recipeItemTypes?.map((value, i) => (
-                        <label key={i}>
-                            <input
-                                checked={value?.checked}
-                                name="recipeItemTypes"
-                                onChange={handleCheckboxChange}
-                                type="checkbox"
-                                value={value?.id}
-                            />
-                            {value.name}
-                        </label>
-                    ))}
-                </fieldset>
-
-                <button type="button" onClick={handleSelectAll}>Select All</button>
-                <button type="reset">Select None</button>
-            </form>
-
-
+            <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
             {data.map(({ values }, i) => (
                 <ItemTable key={i} filter={filter} values={values} />
             ))}

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ItemDetails } from "./ItemDetails";
 import { Icon } from "./Icon";
 
@@ -49,15 +49,26 @@ export const ItemRow = ({
     repeatableProductSum,
     overchargeable
 }: any): ReactNode => {
+    const [hasDetails, setHasDetails] = useState<boolean>(false);
     const [isOpen, setIsOpen] = useState<boolean>(false);
+
+    useEffect(() => {
+        setHasDetails(
+            mobCount > 0
+            || ingredientSum > 0
+            || repeatableIngredientSum > 0
+            || productSum > 0
+            || repeatableProductSum > 0
+        )
+    }, [mobCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
 
     const handleToggle = (event: React.ToggleEvent<HTMLDetailsElement>) => {
         setIsOpen(event.newState === "open");
     };
 
     return (
-        <>
-            <div className="relative flex max-w-5xl text-sm text-white bg-pink-600 shadow shadow-neutral-800/50 mx-2 my-2.5 rounded-lg">
+        <div className="w-6xl flex mx-2 my-2.5">
+            <div className="grow relative flex text-sm text-white bg-pink-600 border border-pink-600 shadow shadow-neutral-800/50 rounded-lg">
                 <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 mr-0 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
                     <img alt={name} onError={(event) => {
                         event.currentTarget.src = "./assets/images/item/0.png";
@@ -126,9 +137,23 @@ export const ItemRow = ({
                         }} src={`./assets/images/collection/${id}.png`} title={name} />
                     </div>
                 </div>
-                {overchargeable === 1 && <div className="absolute -bottom-1.5 md:-top-1.5 -right-1.5">
-                    <img alt="overchargeable" src="./assets/icons/overcharge.png" title="Overcharge" />
-                </div>}
+                {
+                    overchargeable === 1 && <div className="absolute -bottom-1.5 md:-top-1.5 -right-1.5">
+                        <img alt="overchargeable" src="./assets/icons/overcharge.png" title="Overcharge" />
+                    </div>
+                }
+            </div>
+
+            <div className="flex items-center -ml-1 w-7.5">
+                {hasDetails && (
+                    <div className="flex items-center pl-1 pr-1 hover:pl-1.5 bg-cyan-600 hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md">
+                        <div className="flex items-center justify-center text-sm rotate-text-90 rotate-180">
+                            <Icon className="text-amber-100" name="double-arrow-left" sizeClass="size-4" />
+                            Details
+                            <Icon className="text-amber-100" name="double-arrow-left" sizeClass="size-4" />
+                        </div>
+                    </div>
+                )}
             </div>
             {/* <tr>
             <td colSpan={8}>
@@ -143,6 +168,6 @@ export const ItemRow = ({
                 </details>
             </td>
         </tr> */}
-        </>
+        </div>
     );
 };

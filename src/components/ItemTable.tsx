@@ -40,28 +40,31 @@ export const ItemTable = ({
         <div>
             <p>{values.length} Results</p>
             <p>{`Showing ${clamp((currentPage - 1) * itemsPerPage + 1, 1, values.length)} to ${clamp(currentPage * itemsPerPage, 1, values.length)}`}</p>
-            <div className="results">
-                {
-                    values.map((row, i) => (i >= (currentPage - 1) * itemsPerPage && i < currentPage * itemsPerPage) && (
-                        <ItemRow
-                            key={`row-${i}-${row[1]}`}
-                            filter={filter}
-                            id={row[0]}
-                            name={row[1]}
-                            itemTypeId={row[2]}
-                            itemType={row[3]}
-                            buy={row[4]}
-                            sell={row[5]}
-                            weight={row[6]}
-                            mobCount={row[7]}
-                            ingredientSum={row[8]}
-                            repeatableIngredientSum={row[11]}
-                            productSum={row[13]}
-                            repeatableProductSum={row[15]}
-                            overchargeable={row[16]}
-                        />
-                    ))
-                }
+            <div className="flex">
+                <div className="results">
+                    {
+                        values.map((row, i) => (i >= (currentPage - 1) * itemsPerPage && i < currentPage * itemsPerPage) && (
+                            <ItemRow
+                                key={`row-${i}-${row[1]}`}
+                                filter={filter}
+                                id={row[0]}
+                                name={row[1]}
+                                itemTypeId={row[2]}
+                                itemType={row[3]}
+                                buy={row[4]}
+                                sell={row[5]}
+                                weight={row[6]}
+                                mobCount={row[7]}
+                                ingredientSum={row[8]}
+                                repeatableIngredientSum={row[11]}
+                                productSum={row[13]}
+                                repeatableProductSum={row[15]}
+                                overchargeable={row[16]}
+                            />
+                        ))
+                    }
+                </div>
+                <div>details</div>
             </div>
             <button type="button" onClick={() => changePage(1)}>First Page</button>
             <button type="button" onClick={() => changePage(currentPage - 1)}>Previous Page</button>
