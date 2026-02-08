@@ -180,7 +180,7 @@ export const RecipeDetails = ({
     return recipe && (
         <div className="results flex flex-col px-1.5 pt-1 pb-2 bg-cyan-600 rounded-lg overflow-hidden">
             <div className="flex items-center gap-1">
-                <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 mr-0 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
+                <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
                     <img alt={recipe?.products?.[0].name ?? "No image"} onError={(event) => {
                         event.currentTarget.src = "./assets/images/item/0.png";
                     }} src={`./assets/images/item/${recipe?.products?.[0].id ?? 0}.png`} title={recipe?.products?.[0].name ?? "No image"} />
@@ -200,9 +200,9 @@ export const RecipeDetails = ({
             </div>
             <div className="grid grid-cols-2 gap-2 truncate text-sm">
                 <div className="grid grid-cols-1 auto-rows-min">
-                    <div className="text-amber-100 border-b border-cyan-700">Ingredients</div>
+                    <div className="text-amber-100">Ingredients</div>
                     {recipe.ingredients?.map(ingredient =>
-                        <div key={ingredient.id} className="flex border-b border-cyan-700">
+                        <div key={ingredient.id} className="flex border-t border-cyan-700">
                             <div className={`px-0.5 basis-10 text-amber-200 ${ingredient.id === selectedItemId && `font-semibold text-amber-50 bg-amber-600`}`}>{ingredient.id}</div>
                             <div className={`px-0.5 grow overflow-hidden text-ellipsis ${ingredient.id === selectedItemId && `font-semibold bg-amber-600`}`} title={ingredient.name}>{ingredient.name}</div>
                             <div className={`px-0.5 ${ingredient.id === selectedItemId && `font-semibold bg-amber-600`}`}>x{ingredient.quantity}</div>
@@ -210,9 +210,9 @@ export const RecipeDetails = ({
                     )}
                 </div>
                 <div className="grid grid-cols-1 auto-rows-min">
-                    <div className="text-amber-100 border-b border-cyan-700">Products</div>
+                    <div className="text-amber-100">Products</div>
                     {recipe.products?.map(product =>
-                        <div key={product.id} className="flex border-b border-cyan-700">
+                        <div key={product.id} className="flex border-t border-cyan-700">
                             <div className={`px-0.5 basis-10 text-amber-200 ${product.id === selectedItemId && `font-semibold text-amber-50 bg-amber-600`}`}>{product.id}</div>
                             <div className={`px-0.5 grow overflow-hidden text-ellipsis ${product.id === selectedItemId && `font-semibold bg-amber-600`}`} title={product.name}>{product.name}</div>
                             <div className={`px-0.5 ${product.id === selectedItemId && `font-semibold bg-amber-600`}`}>x{product.quantity}</div>
