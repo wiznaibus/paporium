@@ -261,7 +261,7 @@ export const Items = () => {
             </div>
             <div className="hidden xl:block">
                 {selectedItem > 0 && (
-                    <ItemDetails id={selectedItem} filter={filter} />
+                    <ItemDetails id={selectedItem} filter={filter} setSelectedItem={setSelectedItem} />
                 )}
             </div>
         </div>

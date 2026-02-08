@@ -39,7 +39,7 @@ export const DropDetails = ({
         {mvpDrops && (
             <div className="results flex flex-col px-1.5 pt-1 pb-2 bg-emerald-600 rounded-lg">
                 <div className="flex items-center gap-1 text-amber-100 text-md font-semibold">
-                    <Icon className="shrink-0 text-amber-100" name="star" />
+                    <Icon className="shrink-0 text-amber-100" name="mvp" />
                     MVP Drops
                 </div>
                 <div className="grid grid-cols-2 gap-x-2 auto-rows-min truncate text-sm">
