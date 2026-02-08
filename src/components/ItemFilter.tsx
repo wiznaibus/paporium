@@ -28,7 +28,7 @@ export const ItemFilter = ({
             }
         }, 500);
         return () => clearTimeout(delayInputTimeoutId);
-    }, [itemInputValue, filterDataLoaded, 500]);
+    }, [itemInputValue, 500]);
 
     // reset the form values and reload data
     const handleReset = (event: React.SubmitEvent<HTMLFormElement>) => {

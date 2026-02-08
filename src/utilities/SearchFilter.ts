@@ -42,11 +42,11 @@ export const parseSearchParams = (searchParams: URLSearchParams): SearchFilter =
     const searchParamsObject = Object.fromEntries(searchParams);
 
     const item = searchParamsObject.item;
-    const itemTypes = searchParamsObject.itemType?.split(",").map(Number) ?? [];
-    const jobs = searchParamsObject.job?.split(",").map(Number) ?? [];
+    const itemTypes = searchParamsObject.itemTypes?.split(",").map(Number) ?? [];
+    const jobs = searchParamsObject.jobs?.split(",").map(Number) ?? [];
     const page = searchParamsObject.page;
-    const recipeItemTypes = searchParamsObject.recipeItemType?.split(",").map(Number) ?? [];
-    const recipeTypes = searchParamsObject.recipeType?.split(",").map(Number) ?? [];
+    const recipeItemTypes = searchParamsObject.recipeItemTypes?.split(",").map(Number) ?? [];
+    const recipeTypes = searchParamsObject.recipeTypes?.split(",").map(Number) ?? [];
 
     return {
         item,
