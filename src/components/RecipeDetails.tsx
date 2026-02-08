@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import initSqlJs, { type Database } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
 import { Icon } from "./Icon";
+import { getJobBadgeStyles, getRecipeBadgeStyles } from "../utilities/BadgeStyles";
 
 interface RecipeItem {
     id?: number;
@@ -22,38 +23,6 @@ interface Recipe {
     custom?: boolean,
     ingredients?: RecipeItem[],
     products?: RecipeItem[],
-}
-
-const getBadgeStyles = (itemTypeId: number) => {
-    switch (itemTypeId) {
-        case 1:
-            return `bg-yellow-200 border border-yellow-300`;
-        case 2:
-            return `bg-sky-200 border border-sky-300`;
-        case 3:
-            return `bg-red-200 border border-red-300`;
-        case 4:
-            return `bg-lime-200 border border-lime-300`;
-        case 5:
-            return `bg-teal-200 border border-teal-300`;
-        case 6:
-            return `bg-amber-200 border border-amber-300`;
-        case 7:
-            return `bg-green-200 border border-green-300`;
-        case 8:
-            return `bg-indigo-200 border border-indigo-300`;
-        case 9:
-            return `bg-violet-200 border border-violet-300`;
-        case 10:
-            return `bg-cyan-200 border border-cyan-300`;
-        case 11:
-            return `bg-orange-200 border border-orange-300`;
-        case 12:
-            return `bg-fuchsia-200 border border-fuchsia-300`;
-        case 0:
-        default:
-            return `bg-neutral-200 border border-neutral-300`;
-    }
 }
 
 export const RecipeDetails = ({
@@ -187,16 +156,23 @@ export const RecipeDetails = ({
                 </div>
                 <div className="grow text-md font-semibold">{recipe.name}</div>
                 <div className="shrink-0 flex gap-1">
-                    {(recipe.typeId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(recipe.typeId ?? 0)}`}>
+                    {(recipe.typeId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getRecipeBadgeStyles(recipe.typeId ?? 0)}`}>
                         {recipe.type}
                     </div>}
-                    {(recipe.jobId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(recipe.jobId ?? 0)}`}>
+                    {(recipe.jobId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getJobBadgeStyles(recipe.jobId ?? 0)}`}>
                         {recipe.job}
                     </div>}
                 </div>
-                <div className="shrink-0 flex">
-                    {recipe.repeatable && <Icon className="shrink-0 text-amber-100" name="repeat" />}
-                </div>
+                {recipe.repeatable ? (
+                    <div className="shrink-0 flex" title="Repeatable">
+                        <Icon className="shrink-0 text-amber-100" name="repeat" />
+                    </div>
+                ) : (
+                    <div className="shrink-0 flex" title="One-time">
+                        <Icon className="shrink-0 text-amber-100" name="star" />
+                    </div>
+                )}
+
             </div>
             <div className="grid grid-cols-2 gap-2 truncate text-sm">
                 <div className="grid grid-cols-1 auto-rows-min">

@@ -4,6 +4,7 @@ import { RecipeDetails } from "./RecipeDetails";
 import { formatSearchParams, type SearchFilter } from "../utilities/SearchFilter";
 import { Icon } from "./Icon";
 import { DropDetails, type Drop } from "./DropDetails";
+import { getItemBadgeStyles } from "../utilities/BadgeStyles";
 
 interface Item {
     id?: number;
@@ -13,38 +14,6 @@ interface Item {
     buy?: number;
     sell?: number;
     weight?: number;
-}
-
-const getBadgeStyles = (itemTypeId: number) => {
-    switch (itemTypeId) {
-        case 1:
-            return `bg-yellow-200 border border-yellow-300`;
-        case 2:
-            return `bg-sky-200 border border-sky-300`;
-        case 3:
-            return `bg-red-200 border border-red-300`;
-        case 4:
-            return `bg-lime-200 border border-lime-300`;
-        case 5:
-            return `bg-teal-200 border border-teal-300`;
-        case 6:
-            return `bg-amber-200 border border-amber-300`;
-        case 7:
-            return `bg-green-200 border border-green-300`;
-        case 8:
-            return `bg-indigo-200 border border-indigo-300`;
-        case 9:
-            return `bg-violet-200 border border-violet-300`;
-        case 10:
-            return `bg-cyan-200 border border-cyan-300`;
-        case 11:
-            return `bg-orange-200 border border-orange-300`;
-        case 12:
-            return `bg-fuchsia-200 border border-fuchsia-300`;
-        case 0:
-        default:
-            return `bg-neutral-200 border border-neutral-300`;
-    }
 }
 
 export const ItemDetails = ({
@@ -187,14 +156,14 @@ export const ItemDetails = ({
     }, [db, id, filter]);
 
     return item && (
-        <div className="sticky top-0 h-screen p-2 flex flex-col gap-2">
+        <div className="sticky top-0 h-screen flex flex-col gap-2 py-2">
             <div className="flex flex-col mb-2">
                 <div className="relative flex bg-pink-600 border border-pink-600 shadow shadow-neutral-800/50 rounded-lg">
                     <div className="flex flex-col grow">
                         <div className="grow flex flex-row items-center gap-1 pl-2 pr-24">
                             <div className="basis-10 text-xl text-amber-300">{id}</div>
                             <div className="grow text-xl font-semibold" title={item.name}>{item.name}</div>
-                            <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(item.itemTypeId ?? 0)}`}>
+                            <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getItemBadgeStyles(item.itemTypeId ?? 0)}`}>
                                 {item.itemType}
                             </div>
                         </div>
@@ -236,7 +205,7 @@ export const ItemDetails = ({
                             </div>
                         </div>
                     </div>
-                    <div className="absolute top-0 right-0 w-[75px] h-[100px] flex items-center justify-center bg-white inset-shadow-xs inset-shadow-pink-800 rounded-lg">
+                    <div className="absolute top-0 right-0 w-18.75 h-25 flex items-center justify-center bg-white inset-shadow-xs inset-shadow-pink-800 rounded-lg">
                         <img className="rounded-lg" alt={item.name} onError={(event) => {
                             event.currentTarget.src = "./assets/images/item/0.png";
                         }} src={`./assets/images/collection/${id}.png`} title={item.name} />

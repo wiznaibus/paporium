@@ -28,8 +28,8 @@ export const DropDetails = ({
                         <div key={`${drop.mobId}-${drop.slot}`} className="flex items-center border-t border-emerald-700">
                             <div className={`px-0.5 basis-10 text-amber-200`}>{drop.mobId}</div>
                             <div className={`px-0.5 grow overflow-hidden text-ellipsis`} title={drop.mob}>{drop.mob}</div>
-                            <div className={`px-0.5 `}>{`${((drop.rate ?? 0) / 100).toFixed(2)}%`}</div>
                             <div className={`px-0.5 `} title="Steal protected">{drop.stealProtected && <Icon className="shrink-0 text-amber-100" name="protected" sizeClass="size-4" />}</div>
+                            <div className={`px-0.5 `}>{`${((drop.rate ?? 0) / 100).toFixed(2)}%`}</div>
                         </div>
                     )}
                 </div>
@@ -48,7 +48,6 @@ export const DropDetails = ({
                             <div className={`px-0.5 basis-10 text-amber-200`}>{drop.mobId}</div>
                             <div className={`px-0.5 grow overflow-hidden text-ellipsis`} title={drop.mob}>{drop.mob}</div>
                             <div className={`px-0.5 `}>{`${((drop.rate ?? 0) / 100).toFixed(2)}%`}</div>
-                            <div className={`px-0.5 `}>{drop.stealProtected && <Icon className="shrink-0 text-amber-100" name="star" />}</div>
                         </div>
                     )}
                 </div>

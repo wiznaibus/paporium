@@ -252,8 +252,8 @@ export const Items = () => {
     }, [db, filter]);
 
     return (
-        <div className="flex xl:grid xl:grid-cols-3">
-            <div className="xl:col-span-2">
+        <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2">
+            <div className="xl:col-span-2 my-2.5">
                 <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
                 {data.map(({ values }, i) => (
                     <ItemTable key={i} filter={filter} selectedItem={selectedItem} setSelectedItem={setSelectedItem} values={values} />

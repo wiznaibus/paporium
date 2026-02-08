@@ -2,12 +2,9 @@ import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction
 import type { SqlValue } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
 import { formatSearchParams, mergeSearchFilter, type SearchFilter } from "../utilities/SearchFilter";
+import { clamp } from "../utilities/Calculations";
 import { ItemRow } from "./ItemRow";
-
-// clamp a number between a min and max value
-const clamp = (value: number, min: number, max: number): number => (
-    Math.max(Math.min(value, max), min)
-);
+import { Pagination } from "./Pagination";
 
 export const ItemTable = ({
     filter,
@@ -35,16 +32,26 @@ export const ItemTable = ({
         const newPage = clamp(page, 1, totalPages);
         setCurrentPage(newPage);
         const newFilter = mergeSearchFilter(filter, {
-            page: newPage.toString(),
+            ...(newPage > 1 ? { page: newPage.toString() } : null),
         });
         setSearchParams(formatSearchParams(newFilter));
     };
 
+    const paginationElement = (
+        <Pagination
+            changePage={changePage}
+            currentStartItem={clamp((currentPage - 1) * itemsPerPage + 1, 1, values.length)}
+            currentEndItem={clamp(currentPage * itemsPerPage, 1, values.length)}
+            totalItems={values.length}
+            currentPage={currentPage}
+            totalPages={totalPages}
+        />
+    );
+
     return (
         <div className="relative">
-            <p>{values.length} Results</p>
-            <p>{`Showing ${clamp((currentPage - 1) * itemsPerPage + 1, 1, values.length)} to ${clamp(currentPage * itemsPerPage, 1, values.length)}`}</p>
-            <div className="results">
+            {paginationElement}
+            <div className="results flex flex-col gap-2">
                 {
                     values.map((row, i) => (i >= (currentPage - 1) * itemsPerPage && i < currentPage * itemsPerPage) && (
                         <ItemRow
@@ -68,10 +75,7 @@ export const ItemTable = ({
                     ))
                 }
             </div>
-            <button type="button" onClick={() => changePage(1)}>First Page</button>
-            <button type="button" onClick={() => changePage(currentPage - 1)}>Previous Page</button>
-            <button type="button" onClick={() => changePage(currentPage + 1)}>Next Page</button>
-            <button type="button" onClick={() => changePage(totalPages)}>Last Page</button>
+            {paginationElement}
         </div>
     );
 };

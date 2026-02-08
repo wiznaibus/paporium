@@ -1,37 +1,6 @@
 import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { Icon } from "./Icon";
-
-const getBadgeStyles = (itemTypeId: number) => {
-    switch (itemTypeId) {
-        case 1:
-            return `bg-yellow-200 border border-yellow-300`;
-        case 2:
-            return `bg-sky-200 border border-sky-300`;
-        case 3:
-            return `bg-red-200 border border-red-300`;
-        case 4:
-            return `bg-lime-200 border border-lime-300`;
-        case 5:
-            return `bg-teal-200 border border-teal-300`;
-        case 6:
-            return `bg-amber-200 border border-amber-300`;
-        case 7:
-            return `bg-green-200 border border-green-300`;
-        case 8:
-            return `bg-indigo-200 border border-indigo-300`;
-        case 9:
-            return `bg-violet-200 border border-violet-300`;
-        case 10:
-            return `bg-cyan-200 border border-cyan-300`;
-        case 11:
-            return `bg-orange-200 border border-orange-300`;
-        case 12:
-            return `bg-fuchsia-200 border border-fuchsia-300`;
-        case 0:
-        default:
-            return `bg-neutral-200 border border-neutral-300`;
-    }
-}
+import { getItemBadgeStyles } from "../utilities/BadgeStyles";
 
 export const ItemRow = ({
     id,
@@ -79,7 +48,7 @@ export const ItemRow = ({
     }, [mobCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
 
     return (
-        <div className="flex mx-2 my-2.5">
+        <div className="flex">
             <div className="grow relative flex text-sm text-white bg-pink-600 border border-pink-600 shadow shadow-neutral-800/50 rounded-lg">
                 <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 mr-0 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
                     <img alt={name} onError={(event) => {
@@ -91,7 +60,7 @@ export const ItemRow = ({
                         <div className="px-2 col-span-3 flex flex-row items-center gap-1 truncate">
                             <div className="basis-10 text-lg text-amber-300">{id}</div>
                             <div className="grow text-lg font-semibold overflow-hidden text-ellipsis" title={name}>{name}</div>
-                            <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(itemTypeId)}`}>
+                            <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getItemBadgeStyles(itemTypeId)}`}>
                                 {itemType}
                             </div>
                         </div>
@@ -155,7 +124,6 @@ export const ItemRow = ({
                     </div>
                 }
             </div>
-
             <div className="hidden xl:flex items-center -ml-1 w-7.5">
                 {hasDetails && (
                     <button className={`cursor-pointer flex items-center ${selectedItem === id ? `pl-1.5 bg-cyan-500` : `pl-1 bg-cyan-600`} pr-1 hover:pl-1.5  hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md`} onClick={() => setSelectedItem?.(id)} type="button">
