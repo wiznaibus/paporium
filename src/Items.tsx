@@ -6,6 +6,7 @@ import { ItemTable } from "./components/ItemTable";
 import './index.css';
 import { ItemFilter } from "./components/ItemFilter";
 import { ItemDetails } from "./components/ItemDetails";
+import { Icon } from "./components/Icon";
 
 export const Items = () => {
     const [searchParams] = useSearchParams();
@@ -254,10 +255,12 @@ export const Items = () => {
     return (
         <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2">
             <div className="xl:col-span-2 my-2.5">
+                <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-pink-200" name="arrow-right" /> Items</h1>
                 <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
                 {data.map(({ values }, i) => (
                     <ItemTable key={i} filter={filter} selectedItem={selectedItem} setSelectedItem={setSelectedItem} values={values} />
                 ))}
+                <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
             </div>
             <div className="hidden xl:block">
                 {selectedItem > 0 && (

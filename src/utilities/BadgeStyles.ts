@@ -30,10 +30,10 @@ export const getItemBadgeStyles = (id: number): string => {
     }
 };
 
-export const getRecipeBadgeStyles = (id: number): string => {
+export const getRecipeBadgeStyles = (_id: number): string => {
     return `bg-neutral-200 border border-neutral-300`;
 };
 
-export const getJobBadgeStyles = (id: number): string => {
+export const getJobBadgeStyles = (_id: number): string => {
     return `bg-neutral-200 border border-neutral-300`;
 };

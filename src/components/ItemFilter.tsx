@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from 'react-router-dom';
 import { formatSearchParams, mergeSearchFilter, type SearchFilter } from "../utilities/SearchFilter";
+import { Button } from "./Button";
+import { FilterFieldset } from "./FilterFieldset";
 
 export const ItemFilter = ({
     filter,
@@ -73,77 +75,22 @@ export const ItemFilter = ({
     };
 
     return (
-        <form id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
-            <label>Search
-                <input name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />
-            </label>
+        <form className="flex flex-col gap-2 text-sm" id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
+            <div className="grid grid-cols-2 gap-4">
+                <label className="flex items-center gap-1 font-semibold">Search
+                    <input className="w-full bg-cyan-800 border border-cyan-700 rounded-lg p-2" name="item" onBlur={handleInputChange} onChange={handleInputChange} type="text" value={itemInputValue} />
+                </label>
+                <FilterFieldset gridClass="grid-cols-2" items={filter.recipeItemTypes} legend="Component type" name="recipeItemTypes" onCheckboxChange={handleCheckboxChange} />
+                <FilterFieldset gridClass="grid-cols-3" items={filter.itemTypes} legend="Item type" name="itemTypes" onCheckboxChange={handleCheckboxChange} />
+                <FilterFieldset gridClass="grid-cols-2 lg:grid-cols-3" items={filter.recipeTypes} legend="Recipe type" name="recipeTypes" onCheckboxChange={handleCheckboxChange} />
+            </div>
 
-            <fieldset>
-                <legend>Item type</legend>
-                {filter.itemTypes?.map((value, i) => (
-                    <label key={i}>
-                        <input
-                            checked={value?.checked}
-                            name="itemTypes"
-                            onChange={handleCheckboxChange}
-                            type="checkbox"
-                            value={value?.id}
-                        />
-                        {value.name}
-                    </label>
-                ))}
-            </fieldset>
+            <FilterFieldset gridClass="grid-rows-9 grid-flow-col" items={filter.jobs} legend="Jobs" name="jobs" onCheckboxChange={handleCheckboxChange} />
 
-            <fieldset>
-                <legend>Recipe type</legend>
-                {filter.recipeTypes?.map((value, i) => (
-                    <label key={i}>
-                        <input
-                            checked={value?.checked}
-                            name="recipeTypes"
-                            onChange={handleCheckboxChange}
-                            type="checkbox"
-                            value={value?.id}
-                        />
-                        {value.name}
-                    </label>
-                ))}
-            </fieldset>
-
-            <fieldset>
-                <legend>Jobs</legend>
-                {filter.jobs?.map((value, i) => (
-                    <label key={i}>
-                        <input
-                            checked={value?.checked}
-                            name="jobs"
-                            onChange={handleCheckboxChange}
-                            type="checkbox"
-                            value={value?.id}
-                        />
-                        {value.name}
-                    </label>
-                ))}
-            </fieldset>
-
-            <fieldset>
-                <legend>Component type</legend>
-                {filter.recipeItemTypes?.map((value, i) => (
-                    <label key={i}>
-                        <input
-                            checked={value?.checked}
-                            name="recipeItemTypes"
-                            onChange={handleCheckboxChange}
-                            type="checkbox"
-                            value={value?.id}
-                        />
-                        {value.name}
-                    </label>
-                ))}
-            </fieldset>
-
-            <button type="button" onClick={handleSelectAll}>Select All</button>
-            <button type="reset">Select None</button>
+            <div className="flex items-center gap-2">
+                <Button type="button" onClick={handleSelectAll}>Select All</Button>
+                <Button type="reset">Select None</Button>
+            </div>
         </form>
     );
 };
