@@ -12,11 +12,13 @@ const clamp = (value: number, min: number, max: number): number => (
 export const ItemTable = ({
     filter,
     itemsPerPage = 100,
+    selectedItem = 0,
     setSelectedItem,
     values,
 }: {
     filter: SearchFilter,
     itemsPerPage?: number,
+    selectedItem?: number,
     setSelectedItem?: Dispatch<SetStateAction<number>>,
     values: SqlValue[][],
 }): ReactNode => {
@@ -39,7 +41,7 @@ export const ItemTable = ({
     };
 
     return (
-        <div>
+        <div className="relative">
             <p>{values.length} Results</p>
             <p>{`Showing ${clamp((currentPage - 1) * itemsPerPage + 1, 1, values.length)} to ${clamp(currentPage * itemsPerPage, 1, values.length)}`}</p>
             <div className="results">
@@ -60,6 +62,7 @@ export const ItemTable = ({
                             productSum={Number(row[13])}
                             repeatableProductSum={Number(row[15])}
                             overchargeable={Number(row[16])}
+                            selectedItem={selectedItem}
                             setSelectedItem={setSelectedItem}
                         />
                     ))

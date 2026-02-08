@@ -252,18 +252,16 @@ export const Items = () => {
     }, [db, filter]);
 
     return (
-        <div className="flex gap-1">
-            <div className="w-full xl:w-4xl xl:min-w-4xl">
+        <div className="flex xl:grid xl:grid-cols-3 gap-2">
+            <div className="xl:col-span-2">
                 <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
                 {data.map(({ values }, i) => (
-                    <ItemTable key={i} filter={filter} setSelectedItem={setSelectedItem} values={values} />
+                    <ItemTable key={i} filter={filter} selectedItem={selectedItem} setSelectedItem={setSelectedItem} values={values} />
                 ))}
             </div>
-            <div className="relative hidden xl:flex">
+            <div className="hidden xl:block">
                 {selectedItem > 0 && (
-                    <div className="fixed h-screen overflow-y-auto overscroll-contain">
-                        <ItemDetails id={selectedItem} />
-                    </div>
+                    <ItemDetails id={selectedItem} filter={filter} />
                 )}
             </div>
         </div>

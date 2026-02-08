@@ -47,6 +47,7 @@ export const ItemRow = ({
     productSum,
     repeatableProductSum,
     overchargeable,
+    selectedItem = 0,
     setSelectedItem,
 }: {
     id: number,
@@ -62,6 +63,7 @@ export const ItemRow = ({
     productSum?: number,
     repeatableProductSum?: number,
     overchargeable: number,
+    selectedItem?: number,
     setSelectedItem?: Dispatch<SetStateAction<number>>
 }): ReactNode => {
     const [hasDetails, setHasDetails] = useState<boolean>(false);
@@ -156,7 +158,7 @@ export const ItemRow = ({
 
             <div className="hidden xl:flex items-center -ml-1 w-7.5">
                 {hasDetails && (
-                    <button className="cursor-pointer flex items-center pl-1 pr-1 hover:pl-1.5 bg-cyan-600 hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md" onClick={() => setSelectedItem?.(id)} type="button">
+                    <button className={`cursor-pointer flex items-center ${selectedItem === id ? `pl-1.5 bg-cyan-500` : `pl-1 bg-cyan-600`} pr-1 hover:pl-1.5  hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md`} onClick={() => setSelectedItem?.(id)} type="button">
                         <div className="flex items-center justify-center text-sm rotate-text-90 rotate-180">
                             <Icon className="shrink-0 text-amber-100" name="double-arrow-left" sizeClass="size-4" />
                             Details
