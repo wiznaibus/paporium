@@ -3,6 +3,8 @@ import initSqlJs, { type Database } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
 import { RecipeDetails } from "./RecipeDetails";
 import { formatSearchParams, type SearchFilter } from "../utilities/SearchFilter";
+import { Icon } from "./Icon";
+import { DropDetails, type Drop } from "./DropDetails";
 
 interface Item {
     id?: number;
@@ -55,8 +57,8 @@ export const ItemDetails = ({
 }) => {
     const [db, setDb] = useState<Database | null>(null);
     const [item, setItem] = useState<Item>();
-    const [drops, setDrops] = useState<any[]>([]);
-    const [mvpDrops, setMvpDrops] = useState<any[]>([]);
+    const [drops, setDrops] = useState<Drop[]>([]);
+    const [mvpDrops, setMvpDrops] = useState<Drop[]>([]);
 
     const [recipes, setRecipes] = useState<number[]>([]);
 
@@ -153,11 +155,11 @@ export const ItemDetails = ({
                 ORDER BY MobDrop.Rate DESC, MobDrop.MobId ASC
             `).map(({ values }) => (
                 values.map((value) => ({
-                    mobId: value[0],
-                    mob: value[1],
-                    slot: value[2],
-                    rate: value[3],
-                    stealProtected: value[4],
+                    mobId: Number(value[0]),
+                    mob: value[1]?.toString(),
+                    slot: Number(value[2]),
+                    rate: Number(value[3]),
+                    stealProtected: Boolean(value[4]),
                 }))
             ))[0]);
 
@@ -174,10 +176,10 @@ export const ItemDetails = ({
                 ORDER BY MobMvpDrop.Rate DESC, MobMvpDrop.MobId ASC
             `).map(({ values }) => (
                 values.map((value) => ({
-                    mobId: value[0],
-                    mob: value[1],
-                    slot: value[2],
-                    rate: value[3],
+                    mobId: Number(value[0]),
+                    mob: value[1]?.toString(),
+                    slot: Number(value[2]),
+                    rate: Number(value[3]),
                 }))
             ))[0]);
         }
@@ -194,13 +196,42 @@ export const ItemDetails = ({
                             {item.itemType}
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 grid-rows-[min-content_1fr_min-content_1fr_min-content_1fr] 2xl:grid-cols-3 2xl:grid-rows-[min-content_1fr] grid-flow-col">
-                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Buy</div>
-                        <div className="flex items-center 2xl:rounded-bl-lg px-2 md:py-1 bg-pink-400" title={`${item.buy?.toLocaleString()}z`}>{item.buy?.toLocaleString()}z</div>
-                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Sell</div>
-                        <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700" title={`${item.sell?.toLocaleString()}z`}>{item.sell?.toLocaleString()}z</div>
-                        <div className="px-2 md:pb-0.5 text-sm text-amber-100">Weight</div>
-                        <div className="flex items-center rounded-b-lg 2xl:rounded-b-none px-2 md:py-1 bg-pink-400 border-l border-pink-700" title={item.weight?.toLocaleString()}>{item.weight?.toLocaleString()}</div>
+                    <div className={`
+                            grid
+                            grid-cols-2 grid-rows-[min-content_1fr_min-content_1fr_min-content_1fr]
+                            2xl:grid-cols-5 2xl:grid-rows-[min-content_1fr] grid-flow-col
+                            2xl:pr-18
+                        `}>
+                        <div className="px-2 pb-0.5 text-sm text-amber-100">Buy</div>
+                        <div className="flex items-center 2xl:rounded-bl-lg px-2 py-1 bg-pink-400" title={`${item.buy?.toString()}z`}>
+                            {item.buy?.toString()}z
+                        </div>
+                        <div className="px-2 pb-0.5 text-sm text-amber-100">Sell</div>
+                        <div className="flex items-center px-2 py-1 bg-pink-400 border-l border-pink-700" title={`${item.sell?.toString()}z`}>
+                            {item.sell?.toString()}z
+                        </div>
+                        <div className="col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm text-amber-100">Weight</div>
+                        <div className="col-span-2 2xl:col-span-1 flex items-center rounded-b-lg 2xl:rounded-b-none px-2 py-1 bg-pink-400 border-l border-pink-700" title={item.weight?.toString()}>
+                            {item.weight?.toString()}
+                        </div>
+                        <div className="px-2 pb-0.5 text-sm text-amber-100">Drops</div>
+                        <div className="flex items-center px-2 py-1 bg-pink-400 border-l border-pink-700" title={((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()}>
+                            {(drops?.length ?? 0) + (mvpDrops?.length ?? 0) > 0 && (
+                                <>
+                                    <Icon className="shrink-0 text-amber-100" name="drop" />
+                                    {((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()}
+                                </>
+                            )}
+                        </div>
+                        <div className="px-2 pb-0.5 text-sm text-amber-100">Recipes</div>
+                        <div className="flex items-center px-2 py-1 bg-pink-400 border-l border-pink-700" title={(recipes?.length ?? 0).toString()}>
+                            {(recipes?.length ?? 0) > 0 && (
+                                <>
+                                    <Icon className="shrink-0 text-amber-100" name="star" />
+                                    {((recipes?.length ?? 0)).toString()}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="absolute top-0 right-0 w-[75px] h-[100px] flex items-center justify-center bg-white inset-shadow-xs inset-shadow-pink-800 rounded-lg">
@@ -209,38 +240,20 @@ export const ItemDetails = ({
                     }} src={`./assets/images/collection/${id}.png`} title={item.name} />
                 </div>
             </div>
-            <div className="text-lg">
-                {drops && `${drops.length} Drops`}
-                {drops && recipes && `/`}
-                {recipes && `${recipes.length} Recipes`}
-                </div>
+            {(drops || mvpDrops || recipes) && (
+                <div className="grow rounded-lg overflow-hidden">
+                    <div className="h-full overflow-y-auto overscroll-contain flex flex-col gap-2">
+                        {(drops || mvpDrops) && <DropDetails drops={drops} mvpDrops={mvpDrops} />}
 
-            {/* {drops && (
-                <div>
-                    <div className="text-lg">Dropped by {drops.length} Monsters</div>
-                    <div className="rounded-lg overflow-hidden">
-                        <div className="h-svh overflow-y-auto overscroll-contain">
-                            <div className="flex flex-col gap-2 pr-2">
+                        {recipes && (
+                            <div className="flex flex-col gap-2">
                                 {recipes.map(recipe =>
                                     <RecipeDetails key={recipe} id={recipe} selectedItemId={id} />
                                 )}
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
-            )} */}
-
-            {recipes && (
-                <>
-                    <div className="text-lg">Found in {recipes.length} Recipes</div>
-                    <div className="grow overflow-y-auto overscroll-contain">
-                        <div className="flex flex-col gap-2 pr-2">
-                            {recipes.map(recipe =>
-                                <RecipeDetails key={recipe} id={recipe} selectedItemId={id} />
-                            )}
-                        </div>
-                    </div>
-                </>
             )}
         </div>
     );

@@ -252,7 +252,7 @@ export const Items = () => {
     }, [db, filter]);
 
     return (
-        <div className="flex xl:grid xl:grid-cols-3 gap-2">
+        <div className="flex xl:grid xl:grid-cols-3">
             <div className="xl:col-span-2">
                 <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
                 {data.map(({ values }, i) => (

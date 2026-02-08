@@ -193,7 +193,9 @@ export const RecipeDetails = ({
                     {(recipe.jobId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getBadgeStyles(recipe.jobId ?? 0)}`}>
                         {recipe.job}
                     </div>}
-                    {recipe.repeatable && <Icon className="shrink-0 text-amber-100" name="repeat" sizeClass="size-4" />}
+                </div>
+                <div className="shrink-0 flex">
+                    {recipe.repeatable && <Icon className="shrink-0 text-amber-100" name="repeat" />}
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2 truncate text-sm">
