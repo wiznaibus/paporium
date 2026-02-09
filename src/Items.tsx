@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import initSqlJs, { type Database, type QueryExecResult } from "sql.js";
-import { useSearchParams } from 'react-router-dom';
+import initSqlJs, { type Database } from "sql.js";
+import { Link, useSearchParams } from 'react-router-dom';
 import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { ItemTable } from "./components/ItemTable";
 import './index.css';
@@ -8,10 +8,32 @@ import { ItemFilter } from "./components/ItemFilter";
 import { ItemDetails } from "./components/ItemDetails";
 import { Icon } from "./components/Icon";
 
+export interface Item {
+    id: number;
+    name?: string;
+    itemTypeId?: number;
+    itemType?: string;
+    buy?: number;
+    sell?: number;
+    weight?: number;
+    mobDropCount?: number;
+    mobMvpDropCount?: number;
+    ingredientCount?: number;
+    ingredientSum?: number;
+    repeatableIngredientCount?: number;
+    repeatableIngredientSum?: number;
+    productCount?: number;
+    productSum?: number;
+    repeatableProductCount?: number;
+    repeatableProductSum?: number;
+    overcharge?: boolean;
+}
+
 export const Items = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [db, setDb] = useState<Database | null>(null);
-    const [data, setData] = useState<QueryExecResult[]>([]);
+    const [data, setData] = useState<Item[]>([]);
+    const [filteredData, setFilteredData] = useState<Item[]>([]);
     const [filter, setFilter] = useState<SearchFilter>({
         item: "",
         itemTypes: [],
@@ -25,6 +47,121 @@ export const Items = () => {
     const handleSetSelectedItem = (item: number) => {
         setSelectedItem(item === selectedItem ? 0 : item);
     }
+
+    const handleSetFilter = (filter: SearchFilter, reset = false) => {
+        setFilter(filter);
+        setSearchParams(reset ? undefined : formatSearchParams(filter));
+    }
+
+    const getQuery = (
+        recipeFilter = ``,
+        innerFilter = `TRUE`,
+        outerFilter = ``,
+    ): string => (`
+        SELECT
+        Item.Id,
+        Item.Name,
+        Item.ItemTypeId AS ItemTypeId,
+        ItemType.Name AS ItemType,
+        Item.Buy,
+        Item.Sell,
+        Item.Weight,
+        MobDropCount.MobCount AS MobCount,
+        MobMvpDropCount.MobMvpCount AS MobMvpCount,
+        IngredientItem.IngredientCount AS IngredientCount,
+        IngredientItem.IngredientSum AS IngredientSum,
+        RepeatableIngredientItem.RepeatableIngredientCount AS RepeatableIngredientCount,
+        RepeatableIngredientItem.RepeatableIngredientSum AS RepeatableIngredientSum,
+        ProductItem.ProductCount AS ProductCount,
+        ProductItem.ProductSum AS ProductSum,
+        RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
+        RepeatableProductItem.RepeatableProductSum AS RepeatableProductSum,
+        CASE
+            WHEN (
+                ItemTypeId = 6
+                AND Sell > 0
+                AND (MobCount > 0 OR MobMvpCount > 0)
+                AND (IngredientCount IS NULL OR IngredientCount = 0)
+                AND (RepeatableIngredientCount IS NULL OR RepeatableIngredientCount = 0)
+            )
+            THEN TRUE
+            ELSE FALSE
+        END AS Overcharge
+
+        FROM Item
+
+        LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.Id
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(MobId) AS "MobCount"
+            FROM MobDrop
+            GROUP BY ItemId
+        ) AS MobDropCount ON Item.Id = MobDropCount.ItemId
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(MobId) AS "MobMvpCount"
+            FROM MobMvpDrop
+            GROUP BY ItemId
+        ) AS MobMvpDropCount ON Item.Id = MobMvpDropCount.ItemId
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(RecipeItem.Quantity) AS "IngredientCount",
+            SUM(RecipeItem.Quantity) AS "IngredientSum"
+            FROM RecipeItem
+            JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
+            WHERE RecipeItem.RecipeItemTypeId = 1
+            AND Recipe.Repeatable = 0
+            ${recipeFilter}
+            GROUP BY ItemId
+        ) AS IngredientItem ON Item.Id = IngredientItem.ItemId
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(RecipeItem.Quantity) AS "RepeatableIngredientCount",
+            SUM(RecipeItem.Quantity) AS "RepeatableIngredientSum"
+            FROM RecipeItem
+            JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
+            WHERE RecipeItem.RecipeItemTypeId = 1
+            AND Recipe.Repeatable = 1
+            ${recipeFilter}
+            GROUP BY ItemId
+        ) AS RepeatableIngredientItem ON Item.Id = RepeatableIngredientItem.ItemId
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(RecipeItem.Quantity) AS "ProductCount",
+            SUM(RecipeItem.Quantity) AS "ProductSum"
+            FROM RecipeItem
+            JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
+            WHERE RecipeItem.RecipeItemTypeId = 2
+            AND Recipe.Repeatable = 0
+            ${recipeFilter}
+            GROUP BY ItemId
+        ) AS ProductItem ON Item.Id = ProductItem.ItemId
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(RecipeItem.Quantity) AS "RepeatableProductCount",
+            SUM(RecipeItem.Quantity) AS "RepeatableProductSum"
+            FROM RecipeItem
+            JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
+            WHERE RecipeItem.RecipeItemTypeId = 2
+            AND Recipe.Repeatable = 1
+            ${recipeFilter}
+            GROUP BY ItemId
+        ) AS RepeatableProductItem ON Item.Id = RepeatableProductItem.ItemId
+
+        WHERE (
+            ${innerFilter}
+        )
+
+        ${outerFilter}
+
+        GROUP BY Item.Id;
+    `);
 
     // load the database
     useEffect(() => {
@@ -48,7 +185,7 @@ export const Items = () => {
         loadDb();
     }, []);
 
-    // load the filter data from the database and update based on searchParams
+    // load filter data from the database
     useEffect(() => {
         if (db) {
             // load filter data from database
@@ -85,6 +222,7 @@ export const Items = () => {
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                overcharge: parsedSearchParams.overcharge,
             };
 
             // merge the searchParams into the database filter data
@@ -96,6 +234,61 @@ export const Items = () => {
         }
     }, [db]);
 
+    // load unfiltered data from the database
+    useEffect(() => {
+        if (db) {
+            // load unfiltered data from the database
+            const query = getQuery();
+
+            const data = db.exec(query).map(({ values }) => (
+                values.map((value) => ({
+                    id: Number(value[0]),
+                    name: value[1]?.toString(),
+                    itemTypeId: Number(value[2]),
+                    itemType: value[3]?.toString(),
+                    buy: Number(value[4]),
+                    sell: Number(value[5]),
+                    weight: Number(value[6]),
+                    mobDropCount: Number(value[7]),
+                    mobMvpDropCount: Number(value[8]),
+                    ingredientCount: Number(value[9]),
+                    ingredientSum: Number(value[10]),
+                    repeatableIngredientCount: Number(value[11]),
+                    repeatableIngredientSum: Number(value[12]),
+                    productCount: Number(value[13]),
+                    productSum: Number(value[14]),
+                    repeatableProductCount: Number(value[15]),
+                    repeatableProductSum: Number(value[16]),
+                    overcharge: Boolean(value[17]),
+                }))
+            ))[0];
+
+            setData(data);
+        }
+    }, [db]);
+
+    // update the filter with searchParams
+    useEffect(() => {
+        if (db && filterDataLoaded) {
+            // load filter data from searchParams
+            const parsedSearchParams = parseSearchParams(searchParams);
+
+            const searchParamsFilterItems: SearchFilter = {
+                item: parsedSearchParams.item,
+                itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                overcharge: parsedSearchParams.overcharge,
+            };
+
+            // merge the searchParams into the current filter
+            setFilter({
+                ...mergeSearchFilter(filter, searchParamsFilterItems)
+            });
+        }
+    }, [db, searchParams]);
+
     // load items with the applied filter
     useEffect(() => {
         if (db) {
@@ -105,6 +298,7 @@ export const Items = () => {
                 jobs,
                 recipeItemTypes,
                 recipeTypes,
+                overcharge,
             } = formatSearchParams(filter);
 
             let recipeFilter = ``;
@@ -153,120 +347,53 @@ export const Items = () => {
                 AND Item.ItemTypeId IN (${itemTypes})
             ` : ``;
 
-            const query = `
-                SELECT
-                Item.Id,
-                Item.Name,
-                Item.ItemTypeId AS ItemTypeId,
-                ItemType.Name AS ItemType,
-                Item.Buy,
-                Item.Sell,
-                Item.Weight,
-                SUM(MobDrop.MobCount) AS MobCount,
-                IngredientItem.IngredientCount AS IngredientCount,
-                IngredientItem.IngredientSum AS IngredientSum,
-                RepeatableIngredientItem.RepeatableIngredientCount AS RepeatableIngredientCount,
-                RepeatableIngredientItem.RepeatableIngredientSum AS RepeatableIngredientSum,
-                ProductItem.ProductCount AS ProductCount,
-                ProductItem.ProductSum AS ProductSum,
-                RepeatableProductItem.RepeatableProductCount AS RepeatableProductCount,
-                RepeatableProductItem.RepeatableProductSum AS RepeatableProductSum,
-                CASE
-					WHEN (
-                        ItemTypeId = 6
-                        AND Sell > 0
-                        AND MobCount > 0
-                        AND (IngredientCount IS NULL OR IngredientCount = 0)
-                        AND (RepeatableIngredientCount IS NULL OR RepeatableIngredientCount = 0)
-                    )
-                    THEN TRUE
-					ELSE FALSE
-				END AS Overchargeable
-                FROM Item
-                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.Id
+            const query = getQuery(recipeFilter, innerFilter, outerFilter);
 
-                LEFT JOIN (
-                    SELECT ItemId,
-                    1 AS MobCount
-                    FROM MobDrop
-                    UNION ALL
-                    SELECT ItemId,
-                    1 AS MobCount
-                    FROM MobMvpDrop
-                ) AS MobDrop ON Item.Id = MobDrop.ItemId
-
-                LEFT JOIN (
-                    SELECT ItemId,
-                    COUNT(RecipeItem.Quantity) AS "IngredientCount",
-                    SUM(RecipeItem.Quantity) AS "IngredientSum"
-                    FROM RecipeItem
-                    JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
-                    WHERE RecipeItem.RecipeItemTypeId = 1
-                    AND Recipe.Repeatable = 0
-                    ${recipeFilter}
-                    GROUP BY ItemId
-                ) AS IngredientItem ON Item.Id = IngredientItem.ItemId
-
-                LEFT JOIN (
-                    SELECT ItemId,
-                    COUNT(RecipeItem.Quantity) AS "RepeatableIngredientCount",
-                    SUM(RecipeItem.Quantity) AS "RepeatableIngredientSum"
-                    FROM RecipeItem
-                    JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
-                    WHERE RecipeItem.RecipeItemTypeId = 1
-                    AND Recipe.Repeatable = 1
-                    ${recipeFilter}
-                    GROUP BY ItemId
-                ) AS RepeatableIngredientItem ON Item.Id = RepeatableIngredientItem.ItemId
-
-                LEFT JOIN (
-                    SELECT ItemId,
-                    COUNT(RecipeItem.Quantity) AS "ProductCount",
-                    SUM(RecipeItem.Quantity) AS "ProductSum"
-                    FROM RecipeItem
-                    JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
-                    WHERE RecipeItem.RecipeItemTypeId = 2
-                    AND Recipe.Repeatable = 0
-                    ${recipeFilter}
-                    GROUP BY ItemId
-                ) AS ProductItem ON Item.Id = ProductItem.ItemId
-
-                LEFT JOIN (
-                    SELECT ItemId,
-                    COUNT(RecipeItem.Quantity) AS "RepeatableProductCount",
-                    SUM(RecipeItem.Quantity) AS "RepeatableProductSum"
-                    FROM RecipeItem
-                    JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
-                    WHERE RecipeItem.RecipeItemTypeId = 2
-                    AND Recipe.Repeatable = 1
-                    ${recipeFilter}
-                    GROUP BY ItemId
-                ) AS RepeatableProductItem ON Item.Id = RepeatableProductItem.ItemId
-
-                WHERE (
-                    ${innerFilter}
+            const filteredData = db.exec(query).map(({ values }) => (
+                values.map((value) => ({
+                    id: Number(value[0]),
+                    name: value[1]?.toString(),
+                    itemTypeId: Number(value[2]),
+                    itemType: value[3]?.toString(),
+                    buy: Number(value[4]),
+                    sell: Number(value[5]),
+                    weight: Number(value[6]),
+                    mobDropCount: Number(value[7]),
+                    mobMvpDropCount: Number(value[8]),
+                    ingredientCount: Number(value[9]),
+                    ingredientSum: Number(value[10]),
+                    repeatableIngredientCount: Number(value[11]),
+                    repeatableIngredientSum: Number(value[12]),
+                    productCount: Number(value[13]),
+                    productSum: Number(value[14]),
+                    repeatableProductCount: Number(value[15]),
+                    repeatableProductSum: Number(value[16]),
+                    // use the overcharge value from the unfiltered item
+                    overcharge: data.find(datum => datum.id === Number(value[0]))?.overcharge ?? false,
+                })).filter(item => (overcharge ? (overcharge === "true" ? item.overcharge : !item.overcharge): true)
                 )
+            ))[0];
 
-                ${outerFilter}
-
-                GROUP BY Item.Id;
-            `;
-
-            setData(db.exec(query));
+            setFilteredData(filteredData);
         }
-    }, [db, filter]);
+    }, [db, data, filter]);
 
     return (
-        <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2">
+        <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
             <div className="xl:col-span-2 my-2.5">
                 <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-pink-200" name="arrow-right" /> Items</h1>
-                <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
-                {data.map(({ values }, i) => (
-                    <ItemTable key={i} filter={filter} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} values={values} />
-                ))}
+                <div className="bg-amber-600 border border-amber-700 rounded-lg my-3 p-2">
+                    <Icon className="inline-block -mt-1 mr-1" name="warning" />
+                    This database is under active development and may contain missing or inaccurate data or buggy functionality. Please report issues to @wiznaibus on Discord or visit <Link className="underline hover:text-gray-700" target="_blank" to="https://github.com/wiznaibus/paporium">https://github.com/wiznaibus/paporium</Link>. Thanks for stopping by!
+                </div>
+                {filterDataLoaded && <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />}
+                {(filterDataLoaded && filteredData) && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
                 <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
             </div>
-            <div className="hidden xl:block">
+            <div className={`
+                fixed top-0 right-0 z-20 pl-2 bg-cyan-900 border-l border-l-cyan-950 shadow-lg shadow-cyan-950
+                xl:relative xl:pl-0 xl:bg-transparent xl:border-l-0 xl:shadow-none
+            `}>
                 {selectedItem > 0 && (
                     <ItemDetails id={selectedItem} filter={filter} setSelectedItem={handleSetSelectedItem} />
                 )}

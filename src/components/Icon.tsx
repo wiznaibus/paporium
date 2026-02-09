@@ -30,6 +30,8 @@ export const Icon = ({ className, name, sizeClass = `size-5` }: { className?: st
             return <svg className={`${className} ${sizeClass}`} xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M21.947 9.179a1 1 0 0 0-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 0 0-1.822-.001L8.622 8.05l-5.701.453a1 1 0 0 0-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 0 0 1.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 0 0 1.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065"/>
             </svg>;
+        case 'warning':
+            return <svg className={`${className} ${sizeClass}`} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path fill="currentColor" d="M4.47 21h15.06c1.54 0 2.5-1.67 1.73-3L13.73 4.99c-.77-1.33-2.69-1.33-3.46 0L2.74 18c-.77 1.33.19 3 1.73 3M12 14c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1m1 4h-2v-2h2z"></path></svg>;
         case 'drop':
         default:
             return <svg className={`${className} ${sizeClass}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">

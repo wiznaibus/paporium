@@ -33,7 +33,7 @@ export const Pagination = ({
     }, [currentPage, totalPages]);
 
     return (
-        <div className="flex justify-between my-4">
+        <div className="flex justify-between my-4 text-sm">
             <p>{`Showing ${currentStartItem} to ${currentEndItem} of ${totalItems} results`}</p>
             <div className="flex gap-1">
                 <Button type="button" title="First page" onClick={() => changePage?.(1)}><Icon name="double-arrow-left" /></Button>

@@ -11,6 +11,7 @@ export interface SearchFilter {
     page?: string;
     recipeItemTypes?: FilterItem[];
     recipeTypes?: FilterItem[];
+    overcharge?: string;
 }
 
 const mergeFilterItems = (oldFilterItems?: FilterItem[], newFilterItems?: FilterItem[]): FilterItem[] => {
@@ -35,6 +36,7 @@ export const mergeSearchFilter = (oldFilter: SearchFilter, newFilter: SearchFilt
         page: newFilter.page || oldFilter.page,
         recipeItemTypes: mergeFilterItems(oldFilter.recipeItemTypes, newFilter.recipeItemTypes),
         recipeTypes: mergeFilterItems(oldFilter.recipeTypes, newFilter.recipeTypes),
+        overcharge: newFilter.overcharge || oldFilter.overcharge,
     };
 };
 
@@ -47,6 +49,7 @@ export const parseSearchParams = (searchParams: URLSearchParams): SearchFilter =
     const page = searchParamsObject.page;
     const recipeItemTypes = searchParamsObject.recipeItemTypes?.split(",").map(Number) ?? [];
     const recipeTypes = searchParamsObject.recipeTypes?.split(",").map(Number) ?? [];
+    const overcharge = searchParamsObject.overcharge;
 
     return {
         item,
@@ -55,6 +58,7 @@ export const parseSearchParams = (searchParams: URLSearchParams): SearchFilter =
         page,
         recipeItemTypes: recipeItemTypes.map(value => ({ id: value, checked: true })),
         recipeTypes: recipeTypes.map(value => ({ id: value, checked: true })),
+        overcharge,
     };
 };
 
@@ -65,6 +69,7 @@ export const formatSearchParams = (searchFilter: SearchFilter): {
     page?: string;
     recipeItemTypes?: string;
     recipeTypes?: string;
+    overcharge?: string;
 } => {
     const itemTypes = searchFilter.itemTypes?.filter(value => value.checked).map(value => value.id);
     const jobs = searchFilter.jobs?.filter(value => value.checked).map(value => value.id);
@@ -78,5 +83,6 @@ export const formatSearchParams = (searchFilter: SearchFilter): {
         ...(searchFilter.page ? { page: searchFilter.page } : null),
         ...(recipeItemTypes && recipeItemTypes?.length > 0 ? { recipeItemTypes: recipeItemTypes.join(",") } : null),
         ...(recipeTypes && recipeTypes?.length > 0 ? { recipeTypes: recipeTypes.join(",") } : null),
+        ...(searchFilter.overcharge ? { overcharge: searchFilter.overcharge } : null),
     };
 };
