@@ -8,6 +8,7 @@ export interface SearchFilter {
     item?: string;
     itemTypes?: FilterItem[];
     jobs?: FilterItem[];
+    page?: string;
     recipeItemTypes?: FilterItem[];
     recipeTypes?: FilterItem[];
 }
@@ -31,6 +32,7 @@ export const mergeSearchFilter = (oldFilter: SearchFilter, newFilter: SearchFilt
         item: newFilter.item || oldFilter.item,
         itemTypes: mergeFilterItems(oldFilter.itemTypes, newFilter.itemTypes),
         jobs: mergeFilterItems(oldFilter.jobs, newFilter.jobs),
+        page: newFilter.page || oldFilter.page,
         recipeItemTypes: mergeFilterItems(oldFilter.recipeItemTypes, newFilter.recipeItemTypes),
         recipeTypes: mergeFilterItems(oldFilter.recipeTypes, newFilter.recipeTypes),
     };
@@ -40,15 +42,17 @@ export const parseSearchParams = (searchParams: URLSearchParams): SearchFilter =
     const searchParamsObject = Object.fromEntries(searchParams);
 
     const item = searchParamsObject.item;
-    const itemTypes = searchParamsObject.itemType?.split(",").map(Number) ?? [];
-    const jobs = searchParamsObject.job?.split(",").map(Number) ?? [];
-    const recipeItemTypes = searchParamsObject.recipeItemType?.split(",").map(Number) ?? [];
-    const recipeTypes = searchParamsObject.recipeType?.split(",").map(Number) ?? [];
+    const itemTypes = searchParamsObject.itemTypes?.split(",").map(Number) ?? [];
+    const jobs = searchParamsObject.jobs?.split(",").map(Number) ?? [];
+    const page = searchParamsObject.page;
+    const recipeItemTypes = searchParamsObject.recipeItemTypes?.split(",").map(Number) ?? [];
+    const recipeTypes = searchParamsObject.recipeTypes?.split(",").map(Number) ?? [];
 
     return {
         item,
         itemTypes: itemTypes.map(value => ({ id: value, checked: true })),
         jobs: jobs.map(value => ({ id: value, checked: true })),
+        page,
         recipeItemTypes: recipeItemTypes.map(value => ({ id: value, checked: true })),
         recipeTypes: recipeTypes.map(value => ({ id: value, checked: true })),
     };
@@ -58,6 +62,7 @@ export const formatSearchParams = (searchFilter: SearchFilter): {
     item?: string;
     itemTypes?: string;
     jobs?: string;
+    page?: string;
     recipeItemTypes?: string;
     recipeTypes?: string;
 } => {
@@ -70,6 +75,7 @@ export const formatSearchParams = (searchFilter: SearchFilter): {
         ...(searchFilter.item ? { item: searchFilter.item } : null),
         ...(itemTypes && itemTypes?.length > 0 ? { itemTypes: itemTypes.join(",") } : null),
         ...(jobs && jobs?.length > 0 ? { jobs: jobs.join(",") } : null),
+        ...(searchFilter.page ? { page: searchFilter.page } : null),
         ...(recipeItemTypes && recipeItemTypes?.length > 0 ? { recipeItemTypes: recipeItemTypes.join(",") } : null),
         ...(recipeTypes && recipeTypes?.length > 0 ? { recipeTypes: recipeTypes.join(",") } : null),
     };
