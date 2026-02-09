@@ -30,7 +30,7 @@ export interface Item {
 }
 
 export const Items = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [db, setDb] = useState<Database | null>(null);
     const [data, setData] = useState<Item[]>([]);
     const [filteredData, setFilteredData] = useState<Item[]>([]);
@@ -46,6 +46,11 @@ export const Items = () => {
 
     const handleSetSelectedItem = (item: number) => {
         setSelectedItem(item === selectedItem ? 0 : item);
+    }
+
+    const handleSetFilter = (filter: SearchFilter, reset = false) => {
+        setFilter(filter);
+        setSearchParams(reset ? undefined : formatSearchParams(filter));
     }
 
     const getQuery = (
@@ -262,9 +267,10 @@ export const Items = () => {
         }
     }, [db]);
 
-    // update the filter when searchParams update
-    /* useEffect(() => {
+    // update the filter with searchParams
+    useEffect(() => {
         if (db && filterDataLoaded) {
+            // load filter data from searchParams
             const parsedSearchParams = parseSearchParams(searchParams);
 
             const searchParamsFilterItems: SearchFilter = {
@@ -281,7 +287,7 @@ export const Items = () => {
                 ...mergeSearchFilter(filter, searchParamsFilterItems)
             });
         }
-    }, [db, searchParams]); */
+    }, [db, searchParams]);
 
     // load items with the applied filter
     useEffect(() => {
@@ -376,7 +382,7 @@ export const Items = () => {
         <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
             <div className="xl:col-span-2 my-2.5">
                 <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-pink-200" name="arrow-right" /> Items</h1>
-                <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
+                <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />
                 {filteredData && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
                 <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
             </div>

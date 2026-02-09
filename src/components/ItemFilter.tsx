@@ -1,6 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useSearchParams } from 'react-router-dom';
-import { formatSearchParams, mergeSearchFilter, type SearchFilter } from "../utilities/SearchFilter";
+import { mergeSearchFilter, type SearchFilter } from "../utilities/SearchFilter";
 import { Button } from "./Button";
 import { FilterFieldset } from "./FilterFieldset";
 
@@ -11,9 +10,8 @@ export const ItemFilter = ({
 }: {
     filter: SearchFilter,
     filterDataLoaded: boolean,
-    setFilter: (newFilter: SearchFilter) => void
+    setFilter: (newFilter: SearchFilter, reset?: boolean) => void
 }): ReactNode => {
-    const [, setSearchParams] = useSearchParams();
     const [itemInputValue, setItemInputValue] = useState<string>("");
 
     // debounced item input value update
@@ -26,7 +24,6 @@ export const ItemFilter = ({
                 };
 
                 setFilter(newFilter);
-                setSearchParams(formatSearchParams(newFilter));
             }
         }, 500);
         return () => clearTimeout(delayInputTimeoutId);
@@ -43,8 +40,7 @@ export const ItemFilter = ({
             recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
             recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
             overcharge: "",
-        });
-        setSearchParams();
+        }, true);
     };
 
     const handleSelectAll = () => {
@@ -57,7 +53,6 @@ export const ItemFilter = ({
             overcharge: "true",
         };
         setFilter(newFilter);
-        setSearchParams(formatSearchParams(newFilter));
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +66,6 @@ export const ItemFilter = ({
         };
 
         setFilter(newFilter);
-        setSearchParams(formatSearchParams(newFilter));
     }
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +77,6 @@ export const ItemFilter = ({
         };
         const newFilter = mergeSearchFilter(filter, changedFilter);
         setFilter(newFilter);
-        setSearchParams(formatSearchParams(newFilter));
     };
 
     return (
