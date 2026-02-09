@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import initSqlJs, { type Database } from "sql.js";
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { ItemTable } from "./components/ItemTable";
 import './index.css';
@@ -382,11 +382,18 @@ export const Items = () => {
         <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
             <div className="xl:col-span-2 my-2.5">
                 <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-pink-200" name="arrow-right" /> Items</h1>
-                <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />
-                {filteredData && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
+                <div className="bg-amber-600 border border-amber-700 rounded-lg my-3 p-2">
+                    <Icon className="inline-block -mt-1 mr-1" name="warning" />
+                    This database is under active development and may contain missing or inaccurate data or buggy functionality. Please report issues to @wiznaibus on Discord or visit <Link className="underline hover:text-gray-700" target="_blank" to="https://github.com/wiznaibus/paporium">https://github.com/wiznaibus/paporium</Link>. Thanks for stopping by!
+                </div>
+                {filterDataLoaded && <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />}
+                {(filterDataLoaded && filteredData) && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
                 <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
             </div>
-            <div className="hidden xl:block">
+            <div className={`
+                fixed top-0 right-0 z-20 pl-2 bg-cyan-900 border-l border-l-cyan-950 shadow-lg shadow-cyan-950
+                xl:relative xl:pl-0 xl:bg-transparent xl:border-l-0 xl:shadow-none
+            `}>
                 {selectedItem > 0 && (
                     <ItemDetails id={selectedItem} filter={filter} setSelectedItem={handleSetSelectedItem} />
                 )}

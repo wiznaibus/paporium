@@ -67,7 +67,7 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">One-time</div>
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
-                            {(mobDropCount || mobMvpDropCount) && <div className="flex items-center">
+                            {((mobDropCount ?? 0) > 0 || (mobMvpDropCount ?? 0) > 0) && <div className="flex items-center">
                                 <Icon className="shrink-0 text-amber-100" name="drop" />
                                 <span className="overflow-hidden text-ellipsis" title={`${((mobDropCount ?? 0) + (mobMvpDropCount ?? 0)).toLocaleString()} drops`}>
                                     {((mobDropCount ?? 0) + (mobMvpDropCount ?? 0)).toLocaleString()}
@@ -75,13 +75,13 @@ export const ItemRow = ({
                             </div>}
                         </div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
-                            {productSum && <div className="flex items-center">
+                            {((productSum ?? 0) > 0) && <div className="flex items-center">
                                 <Icon className="shrink-0 text-amber-100" name="star" />
                                 <span className="overflow-hidden text-ellipsis" title={`x${productSum?.toLocaleString()}`}>x{productSum?.toLocaleString()}</span>
                             </div>}
                         </div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
-                            {repeatableProductSum && <div className="flex items-center">
+                            {((repeatableProductSum ?? 0) > 0) && <div className="flex items-center">
                                 <Icon className="shrink-0 text-amber-100" name="repeat" />
                                 <span className="overflow-hidden text-ellipsis" title={`x${repeatableProductSum?.toLocaleString()}`}>x{repeatableProductSum?.toLocaleString()}</span>
                             </div>}
@@ -92,13 +92,13 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 md:border-l md:border-pink-200 text-sm text-amber-100">One-time</div>
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
                         <div className="flex rounded-bl-lg md:rounded-none items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
-                            {ingredientSum && <div className="flex items-center">
+                            {((ingredientSum ?? 0) > 0) && <div className="flex items-center">
                                 <Icon className="shrink-0 text-amber-100" name="star" />
                                 <span className="overflow-hidden text-ellipsis" title={`x${ingredientSum?.toLocaleString()}`}>x{ingredientSum?.toLocaleString()}</span>
                             </div>}
                         </div>
                         <div className="flex items-center md:rounded-br-lg px-2 md:py-1 bg-pink-400 border-l border-pink-700">
-                            {repeatableIngredientSum && <div className="flex items-center overflow-hidden">
+                            {((repeatableIngredientSum ?? 0) > 0) && <div className="flex items-center overflow-hidden">
                                 <Icon className="shrink-0 text-amber-100" name="repeat" />
                                 <span className="overflow-hidden text-ellipsis" title={`x${repeatableIngredientSum?.toLocaleString()}`}>x{repeatableIngredientSum?.toLocaleString()}</span>
                             </div>}
@@ -114,7 +114,7 @@ export const ItemRow = ({
                     <img alt="overcharge" src="./assets/icons/overcharge.png" title="Overcharge" />
                 </div>}
             </div>
-            <div className="shrink-0 hidden xl:flex items-center -ml-1 w-7.5">
+            <div className="shrink-0 flex items-center -ml-1 w-7.5">
                 {hasDetails && (
                     <button className={`cursor-pointer flex items-center ${selectedItem === id ? `pl-1.5 bg-cyan-500` : `pl-1 bg-cyan-600`} pr-1 hover:pl-1.5  hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md`} onClick={() => setSelectedItem?.(id)} type="button">
                         <div className="flex items-center justify-center text-sm rotate-text-90 rotate-180">

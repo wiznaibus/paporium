@@ -17,7 +17,7 @@ export const FilterFieldset = ({
 }): ReactNode => {
 
     return (
-        <fieldset className={`grid auto-rows-min ${className} gap-1 rounded-lg p-2 pt-1`}>
+        <fieldset className={`grid auto-rows-min ${className} gap-1 rounded-lg px-3 pt-1 pb-2`}>
             <legend className="font-semibold">{legend}</legend>
             {items?.map((value, i) => (
                 <React.Fragment key={i}>
