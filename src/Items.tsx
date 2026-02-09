@@ -22,6 +22,10 @@ export const Items = () => {
     const [selectedItem, setSelectedItem] = useState<number>(0);
     const [filterDataLoaded, setFilterDataLoaded] = useState<boolean>(false);
 
+    const handleSetSelectedItem = (item: number) => {
+        setSelectedItem(item === selectedItem ? 0 : item);
+    }
+
     // load the database
     useEffect(() => {
         // load the database
@@ -258,13 +262,13 @@ export const Items = () => {
                 <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-pink-200" name="arrow-right" /> Items</h1>
                 <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={(newFilter: SearchFilter) => setFilter(newFilter)} />
                 {data.map(({ values }, i) => (
-                    <ItemTable key={i} filter={filter} selectedItem={selectedItem} setSelectedItem={setSelectedItem} values={values} />
+                    <ItemTable key={i} filter={filter} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} values={values} />
                 ))}
                 <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
             </div>
             <div className="hidden xl:block">
                 {selectedItem > 0 && (
-                    <ItemDetails id={selectedItem} filter={filter} setSelectedItem={setSelectedItem} />
+                    <ItemDetails id={selectedItem} filter={filter} setSelectedItem={handleSetSelectedItem} />
                 )}
             </div>
         </div>

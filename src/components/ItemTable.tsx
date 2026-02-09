@@ -16,7 +16,7 @@ export const ItemTable = ({
     filter: SearchFilter,
     itemsPerPage?: number,
     selectedItem?: number,
-    setSelectedItem?: Dispatch<SetStateAction<number>>,
+    setSelectedItem?: (item: number) => void,
     values: SqlValue[][],
 }): ReactNode => {
     const [searchParams, setSearchParams] = useSearchParams();

@@ -23,7 +23,7 @@ export const ItemDetails = ({
 }: {
     id: number,
     filter: SearchFilter,
-    setSelectedItem?: Dispatch<SetStateAction<number>>
+    setSelectedItem?: (item: number) => void,
 }) => {
     const [db, setDb] = useState<Database | null>(null);
     const [item, setItem] = useState<Item>();
@@ -224,7 +224,7 @@ export const ItemDetails = ({
 
             {(drops || mvpDrops || recipes) && (
                 <div className="grow rounded-lg overflow-hidden">
-                    <div className="h-full overflow-y-auto overscroll-contain flex flex-col gap-2">
+                    <div className="max-h-full overflow-y-auto flex flex-col gap-2">
                         {(drops || mvpDrops) && <DropDetails drops={drops} mvpDrops={mvpDrops} />}
 
                         {recipes && (
