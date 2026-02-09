@@ -147,7 +147,7 @@ export const RecipeDetails = ({
     }, [db, id, searchParams]);
 
     return recipe && (
-        <div className="results flex flex-col px-1.5 pt-1 pb-2 bg-cyan-600 rounded-lg overflow-hidden">
+        <div className="flex flex-col px-1.5 pt-1 pb-2 bg-cyan-600 rounded-lg overflow-hidden">
             <div className="flex items-center gap-1">
                 <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
                     <img alt={recipe?.products?.[0].name ?? "No image"} onError={(event) => {

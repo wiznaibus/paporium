@@ -3,13 +3,13 @@ import { type FilterItem } from "../utilities/SearchFilter";
 import React from "react";
 
 export const FilterFieldset = ({
-    gridClass = "grid-cols-2 lg:grid-cols-4",
+    className = "grid-cols-2 lg:grid-cols-4 bg-cyan-800 border border-cyan-700",
     items,
     legend,
     name,
     onCheckboxChange,
 }: {
-    gridClass?: string,
+    className?: string,
     items?: FilterItem[],
     legend?: string,
     name?: string,
@@ -17,7 +17,7 @@ export const FilterFieldset = ({
 }): ReactNode => {
 
     return (
-        <fieldset className={`grid auto-rows-min ${gridClass} gap-1 bg-cyan-800 border border-cyan-700 rounded-lg p-2 pt-1`}>
+        <fieldset className={`grid auto-rows-min ${className} gap-1 rounded-lg p-2 pt-1`}>
             <legend className="font-semibold">{legend}</legend>
             {items?.map((value, i) => (
                 <React.Fragment key={i}>

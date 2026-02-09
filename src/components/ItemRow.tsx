@@ -1,6 +1,7 @@
-import { useEffect, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { getItemBadgeStyles } from "../utilities/BadgeStyles";
+import type { Item } from "../Items";
 
 export const ItemRow = ({
     id,
@@ -10,42 +11,31 @@ export const ItemRow = ({
     buy,
     sell,
     weight,
-    mobCount,
+    mobDropCount,
+    mobMvpDropCount,
     ingredientSum,
     repeatableIngredientSum,
     productSum,
     repeatableProductSum,
-    overchargeable,
+    overcharge,
     selectedItem = 0,
     setSelectedItem,
-}: {
-    id: number,
-    name?: string,
-    itemType?: string,
-    itemTypeId: number,
-    buy?: number,
-    sell?: number,
-    weight?: number,
-    mobCount?: number,
-    ingredientSum?: number,
-    repeatableIngredientSum?: number,
-    productSum?: number,
-    repeatableProductSum?: number,
-    overchargeable: number,
+}: Item & {
     selectedItem?: number,
-    setSelectedItem?: Dispatch<SetStateAction<number>>
+    setSelectedItem?: (item: number) => void,
 }): ReactNode => {
     const [hasDetails, setHasDetails] = useState<boolean>(false);
 
     useEffect(() => {
         setHasDetails(
-            (mobCount !== undefined && mobCount > 0)
+            (mobDropCount !== undefined && mobDropCount > 0)
+            || (mobMvpDropCount !== undefined && mobMvpDropCount > 0)
             || (ingredientSum !== undefined && ingredientSum > 0)
             || (repeatableIngredientSum !== undefined && repeatableIngredientSum > 0)
             || (productSum !== undefined && productSum > 0)
             || (repeatableProductSum !== undefined && repeatableProductSum> 0)
         )
-    }, [mobCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
+    }, [mobDropCount, mobMvpDropCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
 
     return (
         <div className="flex">
@@ -77,9 +67,11 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">One-time</div>
                         <div className="px-2 md:pb-0.5 text-sm text-amber-100">Repeat</div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 md:border-l md:border-pink-200 ">
-                            {mobCount && <div className="flex items-center">
+                            {(mobDropCount || mobMvpDropCount) && <div className="flex items-center">
                                 <Icon className="shrink-0 text-amber-100" name="drop" />
-                                <span className="overflow-hidden text-ellipsis" title={mobCount?.toLocaleString()}>{mobCount?.toLocaleString()}</span>
+                                <span className="overflow-hidden text-ellipsis" title={`${((mobDropCount ?? 0) + (mobMvpDropCount ?? 0)).toLocaleString()} drops`}>
+                                    {((mobDropCount ?? 0) + (mobMvpDropCount ?? 0)).toLocaleString()}
+                                </span>
                             </div>}
                         </div>
                         <div className="flex items-center px-2 md:py-1 bg-pink-400 border-l border-pink-700">
@@ -118,19 +110,17 @@ export const ItemRow = ({
                         }} src={`./assets/images/collection/${id}.png`} title={name} />
                     </div>
                 </div>
-                {
-                    overchargeable === 1 && <div className="absolute -bottom-1.5 md:-top-1.5 -right-1.5">
-                        <img alt="overchargeable" src="./assets/icons/overcharge.png" title="Overcharge" />
-                    </div>
-                }
+                {overcharge && <div className="absolute -bottom-1.5 md:-top-1.5 -right-1.5">
+                    <img alt="overcharge" src="./assets/icons/overcharge.png" title="Overcharge" />
+                </div>}
             </div>
-            <div className="hidden xl:flex items-center -ml-1 w-7.5">
+            <div className="shrink-0 hidden xl:flex items-center -ml-1 w-7.5">
                 {hasDetails && (
                     <button className={`cursor-pointer flex items-center ${selectedItem === id ? `pl-1.5 bg-cyan-500` : `pl-1 bg-cyan-600`} pr-1 hover:pl-1.5  hover:bg-cyan-500 border border-cyan-700 shadow shadow-neutral-800/50 rounded-md`} onClick={() => setSelectedItem?.(id)} type="button">
                         <div className="flex items-center justify-center text-sm rotate-text-90 rotate-180">
-                            <Icon className="shrink-0 text-amber-100" name="double-arrow-left" sizeClass="size-4" />
+                            <Icon className="shrink-0 text-amber-100" name={selectedItem === id ? `double-arrow-right` : `double-arrow-left`} sizeClass="size-4" />
                             Details
-                            <Icon className="shrink-0 text-amber-100" name="double-arrow-left" sizeClass="size-4" />
+                            <Icon className="shrink-0 text-amber-100" name={selectedItem === id ? `double-arrow-right` : `double-arrow-left`} sizeClass="size-4" />
                         </div>
                     </button>
                 )}

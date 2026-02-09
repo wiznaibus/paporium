@@ -18,7 +18,7 @@ export const DropDetails = ({
 
     return <>
         {drops && (
-            <div className="results flex flex-col px-1.5 pt-1 pb-2 bg-emerald-600 rounded-lg">
+            <div className="flex flex-col px-1.5 pt-1 pb-2 bg-emerald-600 rounded-lg">
                 <div className="flex items-center gap-1 text-amber-100 text-md font-semibold">
                     <Icon className="shrink-0 text-amber-100" name="drop" />
                     Mob Drops
@@ -37,7 +37,7 @@ export const DropDetails = ({
         )}
 
         {mvpDrops && (
-            <div className="results flex flex-col px-1.5 pt-1 pb-2 bg-emerald-600 rounded-lg">
+            <div className="flex flex-col px-1.5 pt-1 pb-2 bg-emerald-600 rounded-lg">
                 <div className="flex items-center gap-1 text-amber-100 text-md font-semibold">
                     <Icon className="shrink-0 text-amber-100" name="mvp" />
                     MVP Drops
