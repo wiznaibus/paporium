@@ -381,8 +381,8 @@ export const Items = () => {
     return (
         <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
             <div className="xl:col-span-2 my-2.5">
-                <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-pink-200" name="arrow-right" /> Items</h1>
-                <div className="text-stone-900 bg-yellow-300 border border-amber-400 rounded-lg my-3 p-2">
+                <h1 className="flex items-center gap-1 text-lg font-bold">The Paporium <Icon className="text-sakura-500" name="arrow-right" /> Items</h1>
+                <div className="text-stone-900 bg-yellow-400 border border-yellow-300 rounded-lg my-3 p-2">
                     <Icon className="inline-block -mt-1 mr-1" name="warning" />
                     This database is under active development and may contain missing or inaccurate data or buggy functionality. Please report issues to @wiznaibus on Discord or visit <Link className="underline hover:text-gray-700" target="_blank" to="https://github.com/wiznaibus/paporium">https://github.com/wiznaibus/paporium</Link>. Thanks for stopping by!
                 </div>

@@ -26,7 +26,7 @@ export const DropDetails = ({
                 <div className="grid grid-cols-2 gap-x-2 auto-rows-min truncate text-sm">
                     {drops.map(drop =>
                         <div key={`${drop.mobId}-${drop.slot}`} className="drop-data flex items-center border-t">
-                            <div className={`header px-0.5 basis-10`}>{drop.mobId}</div>
+                            <div className={`emphasis px-0.5 basis-10`}>{drop.mobId}</div>
                             <div className={`px-0.5 grow truncate`} title={drop.mob}>{drop.mob}</div>
                             <div className={`px-0.5 `} title="Steal protected">
                                 {drop.stealProtected && <Icon className="emphasis shrink-0" name="protected" sizeClass="size-4" />}
@@ -47,7 +47,7 @@ export const DropDetails = ({
                 <div className="grid grid-cols-2 gap-x-2 auto-rows-min truncate text-sm">
                     {mvpDrops && mvpDrops.map(drop =>
                         <div key={`${drop.mobId}-${drop.slot}`} className="drop-data flex border-t">
-                            <div className={`header px-0.5 basis-10`}>{drop.mobId}</div>
+                            <div className={`emphasis px-0.5 basis-10`}>{drop.mobId}</div>
                             <div className={`px-0.5 grow truncate`} title={drop.mob}>{drop.mob}</div>
                             <div className={`px-0.5 `}>{`${((drop.rate ?? 0) / 100).toFixed(2)}%`}</div>
                         </div>

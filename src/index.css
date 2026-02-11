@@ -92,9 +92,9 @@
                 border-color: var(--color-sage-700);
 
                 .recipe-data-emphasis {
+                    color: var(--color-white);
                     font-weight: var(--font-weight-semibold);
-                    color: var(--color-stone-700);
-                    background-color: var(--color-yellow-300);
+                    background-color: --alpha(var(--color-yellow-300) / 25%);
                 }
             }
 

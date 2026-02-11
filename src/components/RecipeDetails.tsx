@@ -176,7 +176,7 @@ export const RecipeDetails = ({
                     <div className="header">Ingredients</div>
                     {recipe.ingredients?.map(ingredient =>
                         <div key={ingredient.id} className="recipe-data flex border-t">
-                            <div className={`px-0.5 basis-10 header ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>{ingredient.id}</div>
+                            <div className={`px-0.5 basis-10 emphasis ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>{ingredient.id}</div>
                             <div className={`px-0.5 grow truncate ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`} title={ingredient.name}>{ingredient.name}</div>
                             <div className={`px-0.5 ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>x{ingredient.quantity}</div>
                         </div>
@@ -186,7 +186,7 @@ export const RecipeDetails = ({
                      <div className="header">Products</div>
                     {recipe.products?.map(product =>
                         <div key={product.id} className="recipe-data flex border-t">
-                            <div className={`px-0.5 basis-10 header ${product.id === selectedItemId && `recipe-data-emphasis`}`}>{product.id}</div>
+                            <div className={`px-0.5 basis-10 emphasis ${product.id === selectedItemId && `recipe-data-emphasis`}`}>{product.id}</div>
                             <div className={`px-0.5 grow truncate ${product.id === selectedItemId && `recipe-data-emphasis`}`} title={product.name}>{product.name}</div>
                             <div className={`px-0.5 ${product.id === selectedItemId && `recipe-data-emphasis`}`}>x{product.quantity}</div>
                         </div>
