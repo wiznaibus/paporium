@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import initSqlJs, { type Database } from "sql.js";
 import { useSearchParams } from 'react-router-dom';
+import { Badge } from "./Badge";
 import { Icon } from "./Icon";
-import { getJobBadgeStyles, getRecipeBadgeStyles } from "../utilities/BadgeStyles";
+import { ItemIcon } from "./ItemIcon";
 
 interface RecipeItem {
     id?: number;
@@ -147,51 +148,47 @@ export const RecipeDetails = ({
     }, [db, id, searchParams]);
 
     return recipe && (
-        <div className="flex flex-col px-1.5 pt-1 pb-2 bg-cyan-600 rounded-lg overflow-hidden">
+        <div className="recipe flex flex-col px-1.5 pt-1 pb-2 overflow-hidden">
             <div className="flex items-center gap-1">
-                <div className="hidden md:flex shrink-0 items-center justify-center h-8 w-8 m-1 bg-pink-50 inset-shadow-xs inset-shadow-pink-800 rounded-full">
-                    <img alt={recipe?.products?.[0].name ?? "No image"} onError={(event) => {
-                        event.currentTarget.src = "./assets/images/item/0.png";
-                    }} src={`./assets/images/item/${recipe?.products?.[0].id ?? 0}.png`} title={recipe?.products?.[0].name ?? "No image"} />
+                <div className="hidden md:flex shrink-0">
+                    <ItemIcon id={recipe?.products?.[0].id ?? 0} name={recipe?.products?.[0].name} />
                 </div>
-                <div className="grow text-md font-semibold">{recipe.name}</div>
+
+                <div className="grow text-md font-semibold" title={recipe.name}>{recipe.name}</div>
                 <div className="shrink-0 flex gap-1">
-                    {(recipe.typeId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getRecipeBadgeStyles(recipe.typeId ?? 0)}`}>
-                        {recipe.type}
-                    </div>}
-                    {(recipe.jobId ?? 0) > 0 && <div className={`px-1 text-xs text-neutral-700 shadow-xs shadow-neutral-700/25 rounded-sm ${getJobBadgeStyles(recipe.jobId ?? 0)}`}>
-                        {recipe.job}
-                    </div>}
+                    {(recipe.typeId ?? 0) > 0 && <Badge id={recipe.typeId} name={recipe.type} type="recipe" />}
+                    {(recipe.jobId ?? 0) > 0 && <Badge id={recipe.jobId} name={recipe.job} type="job" />}
+
                 </div>
                 {recipe.repeatable ? (
                     <div className="shrink-0 flex" title="Repeatable">
-                        <Icon className="shrink-0 text-amber-100" name="repeat" />
+                        <Icon className="shrink-0 emphasis" name="repeat" />
                     </div>
                 ) : (
                     <div className="shrink-0 flex" title="One-time">
-                        <Icon className="shrink-0 text-amber-100" name="star" />
+                        <Icon className="shrink-0 emphasis" name="star" />
                     </div>
                 )}
 
             </div>
-            <div className="grid grid-cols-2 gap-2 truncate text-sm">
+            <div className="grid grid-cols-2 gap-2">
                 <div className="grid grid-cols-1 auto-rows-min">
-                    <div className="text-amber-100">Ingredients</div>
+                    <div className="header">Ingredients</div>
                     {recipe.ingredients?.map(ingredient =>
-                        <div key={ingredient.id} className="flex border-t border-cyan-700">
-                            <div className={`px-0.5 basis-10 text-amber-200 ${ingredient.id === selectedItemId && `font-semibold text-amber-50 bg-amber-600`}`}>{ingredient.id}</div>
-                            <div className={`px-0.5 grow overflow-hidden text-ellipsis ${ingredient.id === selectedItemId && `font-semibold bg-amber-600`}`} title={ingredient.name}>{ingredient.name}</div>
-                            <div className={`px-0.5 ${ingredient.id === selectedItemId && `font-semibold bg-amber-600`}`}>x{ingredient.quantity}</div>
+                        <div key={ingredient.id} className="recipe-data flex border-t">
+                            <div className={`px-0.5 basis-10 header ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>{ingredient.id}</div>
+                            <div className={`px-0.5 grow truncate ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`} title={ingredient.name}>{ingredient.name}</div>
+                            <div className={`px-0.5 ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>x{ingredient.quantity}</div>
                         </div>
                     )}
                 </div>
                 <div className="grid grid-cols-1 auto-rows-min">
-                    <div className="text-amber-100">Products</div>
+                     <div className="header">Products</div>
                     {recipe.products?.map(product =>
-                        <div key={product.id} className="flex border-t border-cyan-700">
-                            <div className={`px-0.5 basis-10 text-amber-200 ${product.id === selectedItemId && `font-semibold text-amber-50 bg-amber-600`}`}>{product.id}</div>
-                            <div className={`px-0.5 grow overflow-hidden text-ellipsis ${product.id === selectedItemId && `font-semibold bg-amber-600`}`} title={product.name}>{product.name}</div>
-                            <div className={`px-0.5 ${product.id === selectedItemId && `font-semibold bg-amber-600`}`}>x{product.quantity}</div>
+                        <div key={product.id} className="recipe-data flex border-t">
+                            <div className={`px-0.5 basis-10 header ${product.id === selectedItemId && `recipe-data-emphasis`}`}>{product.id}</div>
+                            <div className={`px-0.5 grow truncate ${product.id === selectedItemId && `recipe-data-emphasis`}`} title={product.name}>{product.name}</div>
+                            <div className={`px-0.5 ${product.id === selectedItemId && `recipe-data-emphasis`}`}>x{product.quantity}</div>
                         </div>
                     )}
                 </div>

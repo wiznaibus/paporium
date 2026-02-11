@@ -1,9 +1,8 @@
-import { type ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { type FilterItem } from "../utilities/SearchFilter";
-import React from "react";
 
 export const FilterFieldset = ({
-    className = "grid-cols-2 lg:grid-cols-4 bg-cyan-800 border border-cyan-700",
+    className = "grid-cols-2 lg:grid-cols-4",
     items,
     legend,
     name,
@@ -17,17 +16,22 @@ export const FilterFieldset = ({
 }): ReactNode => {
 
     return (
-        <fieldset className={`grid auto-rows-min ${className} gap-1 rounded-lg px-3 pt-1 pb-2`}>
+        <fieldset className={`grid auto-rows-min ${className} gap-1 px-3 pt-1 pb-2`}>
             <legend className="font-semibold">{legend}</legend>
             {items?.map((value, i) => (
                 <React.Fragment key={i}>
                     {name === "jobs" && [5, 8, 11, 14, 21, 25, 28, 31, 34, 41].includes(i) ? (
-                        <span></span>
+                        <span className="hidden md:inline"></span>
                     ) : (
                         <></>
                     )}
                     {name === "jobs" && [8, 14, 28, 34].includes(i) ? (
-                        <span></span>
+                        <span className="hidden md:inline"></span>
+                    ) : (
+                        <></>
+                    )}
+                    {name === "jobs" && [21, 41].includes(i) ? (
+                        <span className="md:hidden"></span>
                     ) : (
                         <></>
                     )}
@@ -39,7 +43,7 @@ export const FilterFieldset = ({
                             type="checkbox"
                             value={value?.id}
                         />
-                        <span className="overflow-hidden text-ellipsis" title={value.name}>{value.name}</span>
+                        <span className="truncate" title={value.name}>{value.name}</span>
                     </label>
                 </React.Fragment>
             ))}

@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { clamp } from "../utilities/Calculations";
 import { Button } from "./Button";
 import { Icon } from "./Icon";
-import { clamp } from "../utilities/Calculations";
 
 export const Pagination = ({
     changePage,
