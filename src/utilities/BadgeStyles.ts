@@ -26,14 +26,14 @@ export const getItemBadgeStyles = (id: number): string => {
             return `bg-fuchsia-200 border border-fuchsia-300`;
         case 0:
         default:
-            return `bg-neutral-200 border border-neutral-300`;
+            return `bg-stone-200 border border-stone-300`;
     }
 };
 
 export const getRecipeBadgeStyles = (_id: number): string => {
-    return `bg-neutral-200 border border-neutral-300`;
+    return `bg-stone-200 border border-stone-300`;
 };
 
 export const getJobBadgeStyles = (_id: number): string => {
-    return `bg-neutral-200 border border-neutral-300`;
+    return `bg-stone-200 border border-stone-300`;
 };

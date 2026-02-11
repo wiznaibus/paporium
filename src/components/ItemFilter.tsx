@@ -70,14 +70,13 @@ export const ItemFilter = ({
     return (
         <form className="flex flex-col gap-2 text-sm" id="filterForm" onReset={handleReset} onSubmit={(event) => event.preventDefault()}>
             <div className="grid grid-cols-2 gap-4">
-                <fieldset className={`flex flex-col gap-2 bg-emerald-800 border border-emerald-700 rounded-lg px-3 pt-1 pb-2`}>
+                <fieldset className={`item flex flex-col gap-2 px-3 pt-1 pb-2`}>
                     <legend className="font-semibold">Filter Items</legend>
-                    <label className="grow flex items-center gap-1.5 font-semibold">Search:
-                        <input className="grow bg-emerald-700 border border-emerald-600 rounded-sm px-2 py-1 font-normal" name="item" onBlur={handleInputChange} onChange={handleInputChange} placeholder="Enter item name or ID..." type="text" value={itemInputValue} />
+                    <label className="shrink flex items-center gap-1.5 font-semibold">Search:
+                        <input className="w-full shrink px-2 py-1 border border-sakura-500 bg-sakura-700/75 rounded-md" name="item" onBlur={handleInputChange} onChange={handleInputChange} placeholder="Enter item name or ID..." type="text" value={itemInputValue} />
                     </label>
                 </fieldset>
-
-                <fieldset className={`grid auto-rows-min grid-cols-2 bg-cyan-800 border border-cyan-700 gap-1 rounded-lg px-3 pt-1 pb-2`}>
+                <fieldset className={`recipe recipe-data grid grid-cols-1 sm:grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
                     <legend className="font-semibold">Filter Items by Recipe Components</legend>
                     {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
                         <label className="flex items-center gap-1 truncate" key={i}>
@@ -88,7 +87,7 @@ export const ItemFilter = ({
                                 type="checkbox"
                                 value={value?.id}
                             />
-                            <span className="overflow-hidden text-ellipsis" title={value.name}>{value.name}</span>
+                            <span className="truncate" title={value.name}>{value.name}</span>
                         </label>
                     ))}
                     <label className="flex items-center gap-1 truncate" key="no-overcharge">
@@ -99,7 +98,7 @@ export const ItemFilter = ({
                             type="checkbox"
                             value="false"
                         />
-                        <span className="overflow-hidden text-ellipsis" title="No Overcharge">No Overcharge</span>
+                        <span className="truncate" title="No Overcharge">No Overcharge</span>
                     </label>
                     <label className="flex items-center gap-1 truncate" key="overcharge-only">
                         <input
@@ -109,14 +108,14 @@ export const ItemFilter = ({
                             type="checkbox"
                             value="true"
                         />
-                        <span className="overflow-hidden text-ellipsis" title="Overcharge Only">Overcharge Only</span>
+                        <span className="truncate" title="Overcharge Only">Overcharge Only</span>
                     </label>
                 </fieldset>
-                <FilterFieldset className="grid-cols-3 bg-emerald-800 border border-emerald-700" items={filter.itemTypes} legend="Filter Items by Type" name="itemTypes" onCheckboxChange={handleCheckboxChange} />
-                <FilterFieldset className="grid-cols-2 lg:grid-cols-3 bg-cyan-800 border border-cyan-700" items={filter.recipeTypes} legend="Filter Recipes by Type" name="recipeTypes" onCheckboxChange={handleCheckboxChange} />
+                <FilterFieldset className="item grid-cols-1 sm:grid-cols-3" items={filter.itemTypes} legend="Filter Items by Type" name="itemTypes" onCheckboxChange={handleCheckboxChange} />
+                <FilterFieldset className="recipe grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" items={filter.recipeTypes} legend="Filter Recipes by Type" name="recipeTypes" onCheckboxChange={handleCheckboxChange} />
             </div>
 
-            <FilterFieldset className="grid-rows-9 grid-flow-col bg-cyan-800 border border-cyan-700" items={filter.jobs} legend="Filter Recipes by Job" name="jobs" onCheckboxChange={handleCheckboxChange} />
+            <FilterFieldset className="recipe grid-rows-21 md:grid-rows-9 grid-flow-col" items={filter.jobs} legend="Filter Recipes by Job" name="jobs" onCheckboxChange={handleCheckboxChange} />
 
             <div className="flex items-center gap-2">
                 <Button type="reset">Clear Filter</Button>

@@ -1,18 +1,160 @@
 @import url('https://fonts.googleapis.com/css2?family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 @import "tailwindcss";
 
+@theme {
+    --color-midnight: #22162B;
+    --color-sage-50: #F4F3F0;
+    --color-sage-100: #E9E7E1;
+    --color-sage-200: #DEDBD2;
+    --color-sage-300: #CFD3C7;
+    --color-sage-400: #BFCCBC;
+    --color-sage-500: #B0C4B1;
+    --color-sage-600: #8EA094;
+    --color-sage-700: #6C7B76;
+    --color-sage-800: #4A5759;
+    --color-sage-900: #313A3B;
+    --color-sage-950: #191D1E;
+    --color-sakura-50: #FAEBE4;
+    --color-sakura-100: #F7E1D7;
+    --color-sakura-200: #F4D0CD;
+    --color-sakura-300: #F0C0C2;
+    --color-sakura-400: #EDAFB8;
+    --color-sakura-500: #D795A6;
+    --color-sakura-600: #C17A94;
+    --color-sakura-700: #AB6082;
+    --color-sakura-800: #7D4765;
+    --color-sakura-900: #502F48;
+    --color-sakura-950: #39233A;
+}
+
 @layer components {
     body {
+        color: var(--color-white);
+        background-color: var(--color-midnight);
         font-family: "SN Pro", sans-serif;
         font-weight: 400;
         font-size: 12pt;
     }
 
+    .panel {
+        background-color: var(--color-midnight);
+    }
+
+    label:has(input[type="checkbox"]:checked) {
+        font-weight: var(--font-weight-semibold);
+    }
+
+    input[type="checkbox"] {
+        accent-color: var(--color-yellow-400);
+        height: calc(var(--spacing) * 4);
+        width: calc(var(--spacing) * 4);
+    }
+
     .results {
+        color: var(--color-white);
+        font-size: var(--text-sm);
         font-variant-numeric: tabular-nums;
+
+        .header {
+            color: var(--color-yellow-50);
+        }
+
+        .emphasis {
+            color: var(--color-yellow-200);
+        }
+
+        .item {
+            background-color: var(--color-sakura-800);
+            border-color: var(--color-sakura-700);
+            border-style: var(--tw-border-style);
+            border-width: 1px;
+            border-radius: var(--radius-lg);
+
+            .item-data {
+                background-color: --alpha(var(--color-sakura-700) / 75%);
+                border-color: var(--color-sakura-900);
+            }
+
+            .item-separator {
+                border-color: var(--color-sakura-600);
+            }
+        }
+
+        .recipe {
+            background-color: var(--color-sage-800);
+            border-color: var(--color-sage-700);
+            border-style: var(--tw-border-style);
+            border-width: 1px;
+            border-radius: var(--radius-lg);
+
+            .recipe-data {
+                background-color: --alpha(var(--color-sage-900) / 75%);
+                border-color: var(--color-sage-700);
+
+                .recipe-data-emphasis {
+                    font-weight: var(--font-weight-semibold);
+                    color: var(--color-stone-700);
+                    background-color: var(--color-yellow-300);
+                }
+            }
+
+            .recipe-separator {
+                border-color: var(--color-sage-700);
+            }
+        }
+
+        .drop {
+            background-color: var(--color-sakura-800);
+            border-color: var(--color-sakura-700);
+            border-style: var(--tw-border-style);
+            border-width: 1px;
+            border-radius: var(--radius-lg);
+
+            .drop-data {
+                background-color: --alpha(var(--color-sakura-900) / 75%);
+                border-color: var(--color-sakura-700);
+            }
+
+            .drop-separator {
+                border-color: var(--color-sakura-700);
+            }
+        }
+    }
+
+    .button {
+        cursor: pointer;
+        color: var(--color-stone-700);
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-semibold);
+        background-color: var(--color-sakura-200);
+        border-color: var(--color-sakura-50);
+        border-style: var(--tw-border-style);
+        border-width: 1px;
+        border-radius: var(--radius-md);
+
+        &.active {
+            color: var(--color-stone-700);
+            background-color: var(--color-yellow-400);
+            border-color: var(--color-yellow-200);
+
+            &:hover {
+                background-color: var(--color-yellow-500);
+                border-color: var(--color-yellow-300);
+            }
+        }
+
+        &:hover {
+            background-color: var(--color-sakura-400);
+            border-color: var(--color-sakura-200);
+        }
+
     }
 
     .rotate-text-90 {
         writing-mode: vertical-rl;
+    }
+
+    .grid-rows-21 {
+        grid-template-rows: (21, minmax(0, 1fr));
     }
 }
