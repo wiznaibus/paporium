@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 import { ItemImage } from "./ItemImage";
 import { RecipeDetails } from "./RecipeDetails";
 
-interface Item {
+export interface Item {
     id?: number;
     name?: string;
     itemType?: string;
@@ -15,6 +15,27 @@ interface Item {
     buy?: number;
     sell?: number;
     weight?: number;
+}
+
+export interface RecipeItem {
+    id?: number;
+    name?: string;
+    typeId?: number;
+    type?: string;
+    quantity?: number;
+}
+
+export interface Recipe {
+    id: number,
+    name?: string,
+    typeId: number,
+    type?: string,
+    jobId?: number,
+    job?: string,
+    repeatable?: boolean,
+    custom?: boolean,
+    ingredients?: RecipeItem[],
+    products?: RecipeItem[],
 }
 
 export const ItemDetails = ({
@@ -30,7 +51,7 @@ export const ItemDetails = ({
     const [item, setItem] = useState<Item>();
     const [drops, setDrops] = useState<Drop[]>([]);
     const [mvpDrops, setMvpDrops] = useState<Drop[]>([]);
-    const [recipes, setRecipes] = useState<number[]>([]);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
 
     useEffect(() => {
         const loadDb = async () => {
@@ -99,7 +120,7 @@ export const ItemDetails = ({
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
             ` : ``;
 
-            setRecipes(db.exec(`
+            const recipeIds = db.exec(`
                 SELECT
                 DISTINCT RecipeId AS Id
                 FROM RecipeItem
@@ -109,7 +130,99 @@ export const ItemDetails = ({
                 ORDER BY RecipeTypeId, RecipeId
             `).map(({ values }) => (
                 values.map((value): number => (Number(value[0])))
-            ))[0]);
+            ))[0];
+
+            const recipeData: Recipe[] = [];
+
+            recipeIds && recipeIds.forEach(recipeId => {
+                const recipe: Recipe = db.exec(`
+                    SELECT
+                    Recipe.Name,
+                    Recipe.RecipeTypeId,
+                    RecipeType.Name AS RecipeName,
+                    Recipe.JobId,
+                    Job.Name AS JobName,
+                    Recipe.Repeatable,
+                    Recipe.Custom
+
+                    FROM Recipe
+                    JOIN RecipeType ON Recipe.RecipeTypeId = RecipeType.Id
+                    JOIN Job ON Recipe.JobId = Job.Id
+
+                    WHERE Recipe.Id = ${recipeId}
+                    LIMIT 1;
+                `).map(({ values }) => (
+                    values.map((value): Recipe => ({
+                        id: recipeId,
+                        name: value[0]?.toString(),
+                        typeId: Number(value[1]),
+                        type: value[2]?.toString(),
+                        jobId: Number(value[3]),
+                        job: value[4]?.toString(),
+                        repeatable: Boolean(value[5]),
+                        custom: Boolean(value[6]),
+                    }))
+                ))[0][0];
+
+                const ingredients: RecipeItem[] = db.exec(`
+                    SELECT
+                    RecipeItem.ItemId,
+                    Item.Name AS ItemName,
+                    RecipeItem.RecipeItemTypeId,
+                    RecipeItemType.Name AS RecipeItemTypeName,
+                    RecipeItem.Quantity
+
+                    FROM RecipeItem
+                    JOIN Item ON RecipeItem.ItemId = Item.Id
+                    JOIN RecipeItemType ON RecipeItem.RecipeItemTypeId = RecipeItemType.Id
+
+                    WHERE RecipeItem.RecipeId = ${recipeId}
+                    AND RecipeItemTypeId = 1
+                    ORDER BY Item.Id
+                `).map(({ values }) => (
+                    values.map((value): RecipeItem => ({
+                        id: Number(value[0]),
+                        name: value[1]?.toString(),
+                        typeId: Number(value[2]),
+                        type: value[3]?.toString(),
+                        quantity: Number(value[4]),
+                    }))
+                ))[0];
+
+                const products: RecipeItem[] = db.exec(`
+                    SELECT
+                    RecipeItem.ItemId,
+                    Item.Name AS ItemName,
+                    RecipeItem.RecipeItemTypeId,
+                    RecipeItemType.Name AS RecipeItemTypeName,
+                    RecipeItem.Quantity
+
+                    FROM RecipeItem
+                    JOIN Item ON RecipeItem.ItemId = Item.Id
+                    JOIN RecipeItemType ON RecipeItem.RecipeItemTypeId = RecipeItemType.Id
+
+                    WHERE RecipeItem.RecipeId = ${recipeId}
+                    AND RecipeItemTypeId = 2
+                    ORDER BY Item.Id
+                `).map(({ values }) => (
+                    values.map((value): RecipeItem => ({
+                        id: Number(value[0]),
+                        name: value[1]?.toString(),
+                        typeId: Number(value[2]),
+                        type: value[3]?.toString(),
+                        quantity: Number(value[4]),
+                    }))
+                ))[0];
+
+                recipeData.push({
+                    ...recipe,
+                    ingredients,
+                    products
+                });
+            });
+
+            setRecipes(recipeData);
+
 
             setDrops(db.exec(`
                 SELECT
@@ -225,7 +338,7 @@ export const ItemDetails = ({
                     {recipes && (
                         <div className="flex flex-col gap-2">
                             {recipes.map(recipe =>
-                                <RecipeDetails key={recipe} id={recipe} selectedItemId={id} />
+                                <RecipeDetails key={recipe.id} recipe={recipe} selectedItemId={id} />
                             )}
                         </div>
                     )}
