@@ -340,9 +340,15 @@ export const Items = () => {
             }
 
             let outerFilter = ``;
-            outerFilter += item ? `
-                AND (Item.Name LIKE '%${item}%' OR Item.Id LIKE '%${item}%')
-            ` : ``;
+            const sanitizedItem = item?.replaceAll("'", "''");
+
+            // if a list of comma-separated ids is provided, search for all ids
+            const idList = sanitizedItem?.includes(",") ? sanitizedItem?.replaceAll(/[^0-9,]/g, "").split(",").filter(Boolean) : null;
+            outerFilter += sanitizedItem ?
+            (
+                idList ? `AND Item.Id IN (${idList?.join(",")})` : `AND (Item.Name LIKE '%${sanitizedItem}%' OR Item.Id LIKE '%${sanitizedItem}%')`
+            ) : ``;
+
             outerFilter += itemTypes ? `
                 AND Item.ItemTypeId IN (${itemTypes})
             ` : ``;
@@ -376,7 +382,7 @@ export const Items = () => {
 
             setFilteredData(filteredData);
         }
-    }, [db, data, filter]);
+    }, [db, data, filter, searchParams]);
 
     return (
         <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">

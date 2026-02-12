@@ -172,19 +172,19 @@ export const ItemDetails = ({
                                 2xl:pr-18
                             `}>
                             <div className="header col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
-                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`${item.buy?.toString()}z`}>
+                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${item.buy?.toString()} zeny`}>
                                 {item.buy?.toString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Sell</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`${item.sell?.toString()}z`}>
+                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${item.sell?.toString()} zeny`}>
                                 {item.sell?.toString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
-                            <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={item.weight?.toString()}>
+                            <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={`Weighs ${item.weight?.toString()}`}>
                                 {item.weight?.toString()}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Drops</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l" title={((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()}>
+                            <div className="item-data flex items-center px-2 py-1  border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
                                 {(drops?.length ?? 0) + (mvpDrops?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="drop" />
@@ -193,7 +193,7 @@ export const ItemDetails = ({
                                 )}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Recipes</div>
-                            <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1  border-l" title={(recipes?.length ?? 0).toString()}>
+                            <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1  border-l" title={`Found in ${(recipes?.length ?? 0).toString()} recipes`}>
                                 {(recipes?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="star" />
