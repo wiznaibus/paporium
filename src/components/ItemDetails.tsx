@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 import { ItemImage } from "./ItemImage";
 import { RecipeDetails } from "./RecipeDetails";
 
-interface Item {
+export interface Item {
     id?: number;
     name?: string;
     itemType?: string;
@@ -15,6 +15,27 @@ interface Item {
     buy?: number;
     sell?: number;
     weight?: number;
+}
+
+export interface RecipeItem {
+    id?: number;
+    name?: string;
+    typeId?: number;
+    type?: string;
+    quantity?: number;
+}
+
+export interface Recipe {
+    id: number,
+    name?: string,
+    typeId: number,
+    type?: string,
+    jobId?: number,
+    job?: string,
+    repeatable?: boolean,
+    custom?: boolean,
+    ingredients?: RecipeItem[],
+    products?: RecipeItem[],
 }
 
 export const ItemDetails = ({
@@ -30,7 +51,7 @@ export const ItemDetails = ({
     const [item, setItem] = useState<Item>();
     const [drops, setDrops] = useState<Drop[]>([]);
     const [mvpDrops, setMvpDrops] = useState<Drop[]>([]);
-    const [recipes, setRecipes] = useState<number[]>([]);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
 
     useEffect(() => {
         const loadDb = async () => {
@@ -99,7 +120,7 @@ export const ItemDetails = ({
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
             ` : ``;
 
-            setRecipes(db.exec(`
+            const recipeIds = db.exec(`
                 SELECT
                 DISTINCT RecipeId AS Id
                 FROM RecipeItem
@@ -109,7 +130,99 @@ export const ItemDetails = ({
                 ORDER BY RecipeTypeId, RecipeId
             `).map(({ values }) => (
                 values.map((value): number => (Number(value[0])))
-            ))[0]);
+            ))[0];
+
+            const recipeData: Recipe[] = [];
+
+            recipeIds && recipeIds.forEach(recipeId => {
+                const recipe: Recipe = db.exec(`
+                    SELECT
+                    Recipe.Name,
+                    Recipe.RecipeTypeId,
+                    RecipeType.Name AS RecipeName,
+                    Recipe.JobId,
+                    Job.Name AS JobName,
+                    Recipe.Repeatable,
+                    Recipe.Custom
+
+                    FROM Recipe
+                    JOIN RecipeType ON Recipe.RecipeTypeId = RecipeType.Id
+                    JOIN Job ON Recipe.JobId = Job.Id
+
+                    WHERE Recipe.Id = ${recipeId}
+                    LIMIT 1;
+                `).map(({ values }) => (
+                    values.map((value): Recipe => ({
+                        id: recipeId,
+                        name: value[0]?.toString(),
+                        typeId: Number(value[1]),
+                        type: value[2]?.toString(),
+                        jobId: Number(value[3]),
+                        job: value[4]?.toString(),
+                        repeatable: Boolean(value[5]),
+                        custom: Boolean(value[6]),
+                    }))
+                ))[0][0];
+
+                const ingredients: RecipeItem[] = db.exec(`
+                    SELECT
+                    RecipeItem.ItemId,
+                    Item.Name AS ItemName,
+                    RecipeItem.RecipeItemTypeId,
+                    RecipeItemType.Name AS RecipeItemTypeName,
+                    RecipeItem.Quantity
+
+                    FROM RecipeItem
+                    JOIN Item ON RecipeItem.ItemId = Item.Id
+                    JOIN RecipeItemType ON RecipeItem.RecipeItemTypeId = RecipeItemType.Id
+
+                    WHERE RecipeItem.RecipeId = ${recipeId}
+                    AND RecipeItemTypeId = 1
+                    ORDER BY Item.Id
+                `).map(({ values }) => (
+                    values.map((value): RecipeItem => ({
+                        id: Number(value[0]),
+                        name: value[1]?.toString(),
+                        typeId: Number(value[2]),
+                        type: value[3]?.toString(),
+                        quantity: Number(value[4]),
+                    }))
+                ))[0];
+
+                const products: RecipeItem[] = db.exec(`
+                    SELECT
+                    RecipeItem.ItemId,
+                    Item.Name AS ItemName,
+                    RecipeItem.RecipeItemTypeId,
+                    RecipeItemType.Name AS RecipeItemTypeName,
+                    RecipeItem.Quantity
+
+                    FROM RecipeItem
+                    JOIN Item ON RecipeItem.ItemId = Item.Id
+                    JOIN RecipeItemType ON RecipeItem.RecipeItemTypeId = RecipeItemType.Id
+
+                    WHERE RecipeItem.RecipeId = ${recipeId}
+                    AND RecipeItemTypeId = 2
+                    ORDER BY Item.Id
+                `).map(({ values }) => (
+                    values.map((value): RecipeItem => ({
+                        id: Number(value[0]),
+                        name: value[1]?.toString(),
+                        typeId: Number(value[2]),
+                        type: value[3]?.toString(),
+                        quantity: Number(value[4]),
+                    }))
+                ))[0];
+
+                recipeData.push({
+                    ...recipe,
+                    ingredients,
+                    products
+                });
+            });
+
+            setRecipes(recipeData);
+
 
             setDrops(db.exec(`
                 SELECT
@@ -172,19 +285,19 @@ export const ItemDetails = ({
                                 2xl:pr-18
                             `}>
                             <div className="header col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
-                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`${item.buy?.toString()}z`}>
+                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${item.buy?.toString()} zeny`}>
                                 {item.buy?.toString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Sell</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`${item.sell?.toString()}z`}>
+                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${item.sell?.toString()} zeny`}>
                                 {item.sell?.toString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
-                            <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={item.weight?.toString()}>
+                            <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={`Weighs ${item.weight?.toString()}`}>
                                 {item.weight?.toString()}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Drops</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l" title={((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()}>
+                            <div className="item-data flex items-center px-2 py-1  border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
                                 {(drops?.length ?? 0) + (mvpDrops?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="drop" />
@@ -193,7 +306,7 @@ export const ItemDetails = ({
                                 )}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Recipes</div>
-                            <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1  border-l" title={(recipes?.length ?? 0).toString()}>
+                            <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1  border-l" title={`Found in ${(recipes?.length ?? 0).toString()} recipes`}>
                                 {(recipes?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="star" />
@@ -225,7 +338,7 @@ export const ItemDetails = ({
                     {recipes && (
                         <div className="flex flex-col gap-2">
                             {recipes.map(recipe =>
-                                <RecipeDetails key={recipe} id={recipe} selectedItemId={id} />
+                                <RecipeDetails key={recipe.id} recipe={recipe} selectedItemId={id} />
                             )}
                         </div>
                     )}

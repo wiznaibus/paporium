@@ -24,8 +24,8 @@ export const Badge = ({
     };
 
     return (
-        <div className={`px-1 text-xs text-stone-700 /25 rounded-sm ${getBadgeStyles(id, type)}`}>
+        <span className={`px-1 text-xs text-stone-700 /25 rounded-sm ${getBadgeStyles(id, type)}`}>
             {name}
-        </div>
+        </span>
     );
 };

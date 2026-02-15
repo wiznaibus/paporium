@@ -50,6 +50,10 @@
         width: calc(var(--spacing) * 4);
     }
 
+    input[type="search"]::-webkit-search-cancel-button {
+        color: var(--color-white);
+    }
+
     .results {
         color: var(--color-white);
         font-size: var(--text-sm);
