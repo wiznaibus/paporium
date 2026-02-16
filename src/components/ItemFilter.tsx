@@ -15,6 +15,12 @@ export const ItemFilter = ({
 }): ReactNode => {
     const [itemInputValue, setItemInputValue] = useState<string>(filter.item ?? "");
 
+    useEffect(() => {
+        if (filterDataLoaded) {
+            setItemInputValue(filter.item ?? "");
+        }
+    }, [filter]);
+
     // debounced item input value update
     useEffect(() => {
         const delayInputTimeoutId = setTimeout(() => {
@@ -57,6 +63,15 @@ export const ItemFilter = ({
         setFilter(newFilter);
     }
 
+    const handlePricingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newFilter = {
+            ...filter,
+            pricing: event.currentTarget.checked ? event.currentTarget.value : "",
+        };
+
+        setFilter(newFilter);
+    }
+
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const changedFilter: SearchFilter = {
             [event.currentTarget.name]: [{
@@ -84,7 +99,7 @@ export const ItemFilter = ({
                         ></textarea>
                     </label>
                 </fieldset>
-                <fieldset className={`col-span-2 md:col-span-1 recipe recipe-data grid grid-cols-1 sm:grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
+                <fieldset className={`col-span-2 md:col-span-1 md:row-span-2 recipe recipe-data grid grid-cols-1 sm:grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
                     <legend className="font-semibold">Filter Items by Recipe Components</legend>
                     {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
                         <label className="flex items-center gap-1 truncate" key={i}>
@@ -123,6 +138,17 @@ export const ItemFilter = ({
                         <span className="font-semibold">Overcharge</span> refers to <Badge id={6} type="item" name="Etc" /> items that are not used as ingredients and can be safely sold to a vendor.
                         Please be aware that a quest or recipe may be missing from the database and could result in items erroneously being marked as <span className="font-semibold">overcharge</span>.
                     </div>
+                </fieldset>
+                <fieldset className={`col-span-2 md:col-span-1 item grid grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
+                    <legend className="font-semibold">Item Buy/Sell Prices</legend>
+                    <label className="flex items-center gap-1 truncate">
+                        <input checked={filter.pricing !== "ocdc"} name="itemPriceType" onChange={handlePricingChange} type="radio" value="" />
+                        Default
+                    </label>
+                    <label className="flex items-center gap-1 truncate">
+                        <input checked={filter.pricing === "ocdc"} name="itemPriceType" onChange={handlePricingChange} type="radio" value="ocdc" />
+                        Discount/Overcharge
+                    </label>
                 </fieldset>
                 <FilterFieldset className="item grid-cols-1 sm:grid-cols-3" items={filter.itemTypes} legend="Filter Items by Type" name="itemTypes" onCheckboxChange={handleCheckboxChange} />
                 <FilterFieldset className="recipe grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" items={filter.recipeTypes} legend="Filter Recipes by Type" name="recipeTypes" onCheckboxChange={handleCheckboxChange} />

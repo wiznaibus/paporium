@@ -57,6 +57,7 @@ export const ItemTable = ({
                         <ItemRow
                             key={`row-${i}-${item.id}`}
                             { ...item }
+                            pricing={filter.pricing}
                             selectedItem={selectedItem}
                             setSelectedItem={setSelectedItem}
                         />
