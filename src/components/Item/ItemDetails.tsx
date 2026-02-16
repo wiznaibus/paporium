@@ -272,8 +272,9 @@ export const ItemDetails = ({
     }, [db, id, filter]);
 
     useEffect(() => {
+        const buyFloor = (item?.buy ?? 0) === 0 ? 0 : 1;
         const dcBuy = Math.floor((item?.buy ?? 0) * 0.76);
-        setBuy(filter.pricing === "ocdc" ? clamp(dcBuy, 1, dcBuy) : item?.buy ?? 0);
+        setBuy(filter.pricing === "ocdc" ? clamp(dcBuy, buyFloor, dcBuy) : item?.buy ?? 0);
         setSell(filter.pricing === "ocdc" ? Math.floor((item?.sell ?? 0) * 1.24) : item?.sell ?? 0);
     }, [item, filter]);
 

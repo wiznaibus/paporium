@@ -34,8 +34,9 @@ export const ItemRow = ({
     const [hasDetails, setHasDetails] = useState<boolean>(false);
 
     useEffect(() => {
+        const buyFloor = (buyProp ?? 0) === 0 ? 0 : 1;
         const dcBuy = Math.floor((buyProp ?? 0) * 0.76);
-        setBuy(pricing === "ocdc" ? clamp(dcBuy, 1, dcBuy) : buyProp ?? 0);
+        setBuy(pricing === "ocdc" ? clamp(dcBuy, buyFloor, dcBuy) : buyProp ?? 0);
     }, [buyProp, pricing]);
 
     useEffect(() => {
