@@ -6,6 +6,7 @@ import { DropDetails, type Drop } from "../DropDetails";
 import { Icon } from "../Icon";
 import { ItemImage } from "./ItemImage";
 import { RecipeDetails } from "../Recipe/RecipeDetails";
+import { clamp } from "../../utilities/Calculations";
 
 export interface Item {
     id?: number;
@@ -52,6 +53,8 @@ export const ItemDetails = ({
     const [drops, setDrops] = useState<Drop[]>([]);
     const [mvpDrops, setMvpDrops] = useState<Drop[]>([]);
     const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [buy, setBuy] = useState<number>(0);
+    const [sell, setSell] = useState<number>(0);
 
     useEffect(() => {
         const loadDb = async () => {
@@ -268,6 +271,12 @@ export const ItemDetails = ({
         }
     }, [db, id, filter]);
 
+    useEffect(() => {
+        const dcBuy = Math.floor((item?.buy ?? 0) * 0.76);
+        setBuy(filter.pricing === "ocdc" ? clamp(dcBuy, 1, dcBuy) : item?.buy ?? 0);
+        setSell(filter.pricing === "ocdc" ? Math.floor((item?.sell ?? 0) * 1.24) : item?.sell ?? 0);
+    }, [item, filter]);
+
     return item && (
         <div className="sticky top-0 h-screen flex flex-col gap-2 py-2 px-2 xl:px-0">
             <div className="flex flex-col mb-2">
@@ -285,19 +294,21 @@ export const ItemDetails = ({
                                 2xl:pr-18
                             `}>
                             <div className="header col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
-                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${item.buy?.toString()} zeny`}>
-                                {item.buy?.toString()}z
+                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${filter.pricing === "ocdc" ? ` using Discount 10` : ``}`}>
+                                {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
+                                {buy}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Sell</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${item.sell?.toString()} zeny`}>
-                                {item.sell?.toString()}z
+                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${sell} zeny${filter.pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
+                                {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
+                                {sell}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
                             <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={`Weighs ${item.weight?.toString()}`}>
                                 {item.weight?.toString()}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Drops</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
+                            <div className="item-data flex items-center px-2 py-1 border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
                                 {(drops?.length ?? 0) + (mvpDrops?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="drop" />
@@ -306,7 +317,7 @@ export const ItemDetails = ({
                                 )}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Recipes</div>
-                            <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1  border-l" title={`Found in ${(recipes?.length ?? 0).toString()} recipes`}>
+                            <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1 border-l" title={`Found in ${(recipes?.length ?? 0).toString()} recipes`}>
                                 {(recipes?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="star" />

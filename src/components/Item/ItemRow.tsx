@@ -4,14 +4,15 @@ import { Badge } from "../Badge";
 import { Icon } from "../Icon";
 import { ItemIcon } from "../Item/ItemIcon";
 import { ItemImage } from "../Item/ItemImage";
+import { clamp } from "../../utilities/Calculations";
 
 export const ItemRow = ({
     id,
     name,
     itemType,
     itemTypeId = 0,
-    buy,
-    sell,
+    buy: buyProp,
+    sell: sellProp,
     weight,
     mobDropCount,
     mobMvpDropCount,
@@ -20,13 +21,26 @@ export const ItemRow = ({
     productSum,
     repeatableProductSum,
     overcharge,
+    pricing,
     selectedItem = 0,
     setSelectedItem,
 }: Item & {
+    pricing?: string,
     selectedItem?: number,
     setSelectedItem?: (item: number) => void,
 }): ReactNode => {
+    const [buy, setBuy] = useState<number>(buyProp ?? 0);
+    const [sell, setSell] = useState<number>(sellProp ?? 0);
     const [hasDetails, setHasDetails] = useState<boolean>(false);
+
+    useEffect(() => {
+        const dcBuy = Math.floor((buyProp ?? 0) * 0.76);
+        setBuy(pricing === "ocdc" ? clamp(dcBuy, 1, dcBuy) : buyProp ?? 0);
+    }, [buyProp, pricing]);
+
+    useEffect(() => {
+        setSell(pricing === "ocdc" ? Math.floor((sellProp ?? 0) * 1.24) : sellProp ?? 0);
+    }, [sellProp, pricing]);
 
     useEffect(() => {
         setHasDetails(
@@ -55,9 +69,17 @@ export const ItemRow = ({
                         <div className="px-2 md:pb-0.5 text-sm header">Buy</div>
                         <div className="px-2 md:pb-0.5 text-sm header">Sell</div>
                         <div className="px-2 md:pb-0.5 text-sm header">Weight</div>
-                        <div className="item-data flex items-center md:rounded-tl-lg px-2 md:py-1" title={`Buy for ${buy?.toLocaleString()} zeny`}>{buy?.toLocaleString()}z</div>
-                        <div className="item-data flex items-center px-2 md:py-1 border-l" title={`Sell for ${sell?.toLocaleString()} zeny`}>{sell?.toLocaleString()}z</div>
-                        <div className="item-data flex items-center px-2 md:py-1 border-l" title={`Weighs ${weight?.toLocaleString()}`}>{weight?.toLocaleString()}</div>
+                        <div className="item-data flex items-center md:rounded-tl-lg px-2 md:py-1" title={`Buy for ${buy?.toLocaleString()} zeny${pricing === "ocdc" ? ` using Discount 10` : ``}`}>
+                            {pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
+                            {buy?.toLocaleString()}z
+                        </div>
+                        <div className="item-data flex items-center px-2 md:py-1 border-l" title={`Sell for ${sell?.toLocaleString()} zeny${pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
+                            {pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
+                            {sell?.toLocaleString()}z
+                        </div>
+                        <div className="item-data flex items-center px-2 md:py-1 border-l" title={`Weighs ${weight?.toLocaleString()}`}>
+                            {weight?.toLocaleString()}
+                        </div>
                     </div>
                     <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
                         <div className="item-separator px-2 md:border-l col-span-3 flex items-center text-base font-semibold">How to obtain</div>
