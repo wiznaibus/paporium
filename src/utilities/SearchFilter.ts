@@ -9,6 +9,7 @@ export interface SearchFilter {
     itemTypes?: FilterItem[];
     jobs?: FilterItem[];
     page?: string;
+    recipe?: string;
     recipeItemTypes?: FilterItem[];
     recipeTypes?: FilterItem[];
     overcharge?: string;
@@ -34,6 +35,7 @@ export const mergeSearchFilter = (oldFilter: SearchFilter, newFilter: SearchFilt
         itemTypes: mergeFilterItems(oldFilter.itemTypes, newFilter.itemTypes),
         jobs: mergeFilterItems(oldFilter.jobs, newFilter.jobs),
         page: newFilter.page || oldFilter.page,
+        recipe: newFilter.recipe || oldFilter.recipe,
         recipeItemTypes: mergeFilterItems(oldFilter.recipeItemTypes, newFilter.recipeItemTypes),
         recipeTypes: mergeFilterItems(oldFilter.recipeTypes, newFilter.recipeTypes),
         overcharge: newFilter.overcharge || oldFilter.overcharge,
@@ -47,6 +49,7 @@ export const parseSearchParams = (searchParams: URLSearchParams): SearchFilter =
     const itemTypes = searchParamsObject.itemTypes?.split(",").map(Number) ?? [];
     const jobs = searchParamsObject.jobs?.split(",").map(Number) ?? [];
     const page = searchParamsObject.page;
+    const recipe = searchParamsObject.recipe;
     const recipeItemTypes = searchParamsObject.recipeItemTypes?.split(",").map(Number) ?? [];
     const recipeTypes = searchParamsObject.recipeTypes?.split(",").map(Number) ?? [];
     const overcharge = searchParamsObject.overcharge;
@@ -56,6 +59,7 @@ export const parseSearchParams = (searchParams: URLSearchParams): SearchFilter =
         itemTypes: itemTypes.map(value => ({ id: value, checked: true })),
         jobs: jobs.map(value => ({ id: value, checked: true })),
         page,
+        recipe,
         recipeItemTypes: recipeItemTypes.map(value => ({ id: value, checked: true })),
         recipeTypes: recipeTypes.map(value => ({ id: value, checked: true })),
         overcharge,
@@ -67,6 +71,7 @@ export const formatSearchParams = (searchFilter: SearchFilter): {
     itemTypes?: string;
     jobs?: string;
     page?: string;
+    recipe?: string;
     recipeItemTypes?: string;
     recipeTypes?: string;
     overcharge?: string;
@@ -81,6 +86,7 @@ export const formatSearchParams = (searchFilter: SearchFilter): {
         ...(itemTypes && itemTypes?.length > 0 ? { itemTypes: itemTypes.join(",") } : null),
         ...(jobs && jobs?.length > 0 ? { jobs: jobs.join(",") } : null),
         ...(searchFilter.page ? { page: searchFilter.page } : null),
+        ...(searchFilter.recipe ? { recipe: searchFilter.recipe } : null),
         ...(recipeItemTypes && recipeItemTypes?.length > 0 ? { recipeItemTypes: recipeItemTypes.join(",") } : null),
         ...(recipeTypes && recipeTypes?.length > 0 ? { recipeTypes: recipeTypes.join(",") } : null),
         ...(searchFilter.overcharge ? { overcharge: searchFilter.overcharge } : null),

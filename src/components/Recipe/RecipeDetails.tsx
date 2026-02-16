@@ -1,7 +1,7 @@
-import type { Recipe } from "./ItemDetails";
-import { Badge } from "./Badge";
-import { Icon } from "./Icon";
-import { ItemIcon } from "./ItemIcon";
+import type { Recipe } from "../Item/ItemDetails";
+import { Badge } from "../Badge";
+import { Icon } from "../Icon";
+import { ItemIcon } from "../Item/ItemIcon";
 
 export const RecipeDetails = ({
     recipe,
