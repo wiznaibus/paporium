@@ -1,10 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from 'react-router-dom';
-import { clamp } from "../utilities/Calculations";
-import { formatSearchParams, mergeSearchFilter, type SearchFilter } from "../utilities/SearchFilter";
-import type { Item } from "../Items";
+import { clamp } from "../../utilities/Calculations";
+import { formatSearchParams, mergeSearchFilter, type SearchFilter } from "../../utilities/SearchFilter";
+import type { Item } from "../../Items";
 import { ItemRow } from "./ItemRow";
-import { Pagination } from "./Pagination";
+import { Pagination } from "../Pagination";
 
 export const ItemTable = ({
     filter,

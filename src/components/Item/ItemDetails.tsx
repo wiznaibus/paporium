@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import initSqlJs, { type Database } from "sql.js";
-import { formatSearchParams, type SearchFilter } from "../utilities/SearchFilter";
-import { Badge } from "./Badge";
-import { DropDetails, type Drop } from "./DropDetails";
-import { Icon } from "./Icon";
+import { formatSearchParams, type SearchFilter } from "../../utilities/SearchFilter";
+import { Badge } from "../Badge";
+import { DropDetails, type Drop } from "../DropDetails";
+import { Icon } from "../Icon";
 import { ItemImage } from "./ItemImage";
-import { RecipeDetails } from "./RecipeDetails";
+import { RecipeDetails } from "../Recipe/RecipeDetails";
 
 export interface Item {
     id?: number;

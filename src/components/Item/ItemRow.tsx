@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from "react";
-import type { Item } from "../Items";
-import { Badge } from "./Badge";
-import { Icon } from "./Icon";
-import { ItemIcon } from "./ItemIcon";
-import { ItemImage } from "./ItemImage";
+import type { Item } from "../../Items";
+import { Badge } from "../Badge";
+import { Icon } from "../Icon";
+import { ItemIcon } from "../Item/ItemIcon";
+import { ItemImage } from "../Item/ItemImage";
 
 export const ItemRow = ({
     id,

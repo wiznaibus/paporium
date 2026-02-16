@@ -4,9 +4,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import './index.css';
 import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { Icon } from "./components/Icon";
-import { ItemDetails } from "./components/ItemDetails";
+import { ItemDetails } from "./components/Item/ItemDetails";
 import { ItemFilter } from "./components/ItemFilter";
-import { ItemTable } from "./components/ItemTable";
+import { ItemTable } from "./components/Item/ItemTable";
 
 export interface Item {
     id: number;
