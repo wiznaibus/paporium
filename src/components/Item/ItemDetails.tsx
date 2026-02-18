@@ -297,23 +297,23 @@ export const ItemDetails = ({
                             <div className="header col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
                             <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${filter.pricing === "ocdc" ? ` using Discount 10` : ``}`}>
                                 {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
-                                {buy}z
+                                {buy.toLocaleString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Sell</div>
                             <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${sell} zeny${filter.pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
                                 {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
-                                {sell}z
+                                {sell.toLocaleString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
                             <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={`Weighs ${item.weight?.toString()}`}>
-                                {item.weight?.toString()}
+                                {item.weight?.toLocaleString()}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Drops</div>
                             <div className="item-data flex items-center px-2 py-1 border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
                                 {(drops?.length ?? 0) + (mvpDrops?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="drop" />
-                                        {((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()}
+                                        {((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toLocaleString()}
                                     </>
                                 )}
                             </div>
@@ -322,7 +322,7 @@ export const ItemDetails = ({
                                 {(recipes?.length ?? 0) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="star" />
-                                        {((recipes?.length ?? 0)).toString()}
+                                        {((recipes?.length ?? 0)).toLocaleString()}
                                     </>
                                 )}
                             </div>

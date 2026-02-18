@@ -41,7 +41,7 @@ export const RecipeDetails = ({
                         <div key={ingredient.id} className="recipe-data flex border-t">
                             <div className={`px-0.5 basis-10 emphasis ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>{ingredient.id}</div>
                             <div className={`px-0.5 grow truncate ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`} title={ingredient.name}>{ingredient.name}</div>
-                            <div className={`px-0.5 ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>x{ingredient.quantity}</div>
+                            <div className={`px-0.5 ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>x{ingredient.quantity?.toLocaleString()}</div>
                         </div>
                     )}
                 </div>
@@ -51,7 +51,7 @@ export const RecipeDetails = ({
                         <div key={product.id} className="recipe-data flex border-t">
                             <div className={`px-0.5 basis-10 emphasis ${product.id === selectedItemId && `recipe-data-emphasis`}`}>{product.id}</div>
                             <div className={`px-0.5 grow truncate ${product.id === selectedItemId && `recipe-data-emphasis`}`} title={product.name}>{product.name}</div>
-                            <div className={`px-0.5 ${product.id === selectedItemId && `recipe-data-emphasis`}`}>x{product.quantity}</div>
+                            <div className={`px-0.5 ${product.id === selectedItemId && `recipe-data-emphasis`}`}>x{product.quantity?.toLocaleString()}</div>
                         </div>
                     )}
                 </div>
