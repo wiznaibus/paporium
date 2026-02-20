@@ -26,6 +26,8 @@ export const Icon = ({ className, name, sizeClass = `size-5` }: { className?: st
             return <svg className={`${className} ${sizeClass}`} xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 24 24">
                 <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 12V9a3 3 0 0 1 3-3h13m-3-3 3 3-3 3m3 3v3a3 3 0 0 1-3 3H4m3 3-3-3 3-3"/>
             </svg>;
+        case 'shop':
+            return <svg className={`${className} ${sizeClass}`} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M5 22h14a2 2 0 0 0 2-2V9a1 1 0 0 0-1-1h-3v-.777c0-2.609-1.903-4.945-4.5-5.198A5.005 5.005 0 0 0 7 7v1H4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2zm12-12v2h-2v-2h2zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v1H9V7zm-2 3h2v2H7v-2z" fill="currentColor"></path></svg>;
         case 'star':
             return <svg className={`${className} ${sizeClass}`} xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M21.947 9.179a1 1 0 0 0-.868-.676l-5.701-.453-2.467-5.461a.998.998 0 0 0-1.822-.001L8.622 8.05l-5.701.453a1 1 0 0 0-.619 1.713l4.213 4.107-1.49 6.452a1 1 0 0 0 1.53 1.057L12 18.202l5.445 3.63a1.001 1.001 0 0 0 1.517-1.106l-1.829-6.4 4.536-4.082c.297-.268.406-.686.278-1.065"/>

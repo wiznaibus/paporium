@@ -14,6 +14,7 @@ export const ItemRow = ({
     buy: buyProp,
     sell: sellProp,
     weight,
+    npcShopCount,
     mobDropCount,
     mobMvpDropCount,
     ingredientSum,
@@ -45,14 +46,15 @@ export const ItemRow = ({
 
     useEffect(() => {
         setHasDetails(
-            (mobDropCount !== undefined && mobDropCount > 0)
+            (npcShopCount !== undefined && npcShopCount > 0)
+            || (mobDropCount !== undefined && mobDropCount > 0)
             || (mobMvpDropCount !== undefined && mobMvpDropCount > 0)
             || (ingredientSum !== undefined && ingredientSum > 0)
             || (repeatableIngredientSum !== undefined && repeatableIngredientSum > 0)
             || (productSum !== undefined && productSum > 0)
             || (repeatableProductSum !== undefined && repeatableProductSum> 0)
         )
-    }, [mobDropCount, mobMvpDropCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
+    }, [npcShopCount, mobDropCount, mobMvpDropCount, ingredientSum, repeatableIngredientSum, productSum, repeatableProductSum]);
 
     return (
         <div className="flex">
@@ -60,8 +62,8 @@ export const ItemRow = ({
                 <div className="hidden md:flex shrink-0">
                     <ItemIcon id={id} name={name} />
                 </div>
-                <div className="grow grid grid-cols-3 grid-rows-3 gap-2 md:grid-cols-8 md:grid-rows-1 md:gap-0">
-                    <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
+                <div className="grow grid grid-cols-4 grid-rows-3 gap-2 md:grid-cols-9 md:grid-rows-1 md:gap-0">
+                    <div className="col-span-4 md:col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
                         <div className="px-2 col-span-3 flex flex-row items-center gap-1 truncate">
                             <div className="emphasis basis-10 text-lg">{id}</div>
                             <div className="grow text-lg font-semibold truncate" title={name}>{name}</div>
@@ -82,12 +84,21 @@ export const ItemRow = ({
                             {weight?.toLocaleString()}
                         </div>
                     </div>
-                    <div className="col-span-3 grid grid-cols-3 grid-rows-[1fr_min-content_1fr]">
-                        <div className="item-separator px-2 md:border-l col-span-3 flex items-center text-base font-semibold">How to obtain</div>
-                        <div className="item-separator px-2 md:pb-0.5 md:border-l text-sm header">Drop</div>
-                        <div className="px-2 md:pb-0.5 text-sm header">One-time</div>
+                    <div className="col-span-4 grid grid-cols-4 grid-rows-[1fr_min-content_1fr]">
+                        <div className="item-separator px-2 md:border-l col-span-4 flex items-center text-base font-semibold">How to obtain</div>
+                        <div className="item-separator px-2 md:pb-0.5 md:border-l text-sm header">Shop</div>
+                        <div className="px-2 md:pb-0.5 text-sm header">Drop</div>
+                        <div className="px-2 md:pb-0.5 text-sm header truncate" title="One-time">One-time</div>
                         <div className="px-2 md:pb-0.5 text-sm header">Repeat</div>
                         <div className="item-data item-separator flex items-center px-2 md:py-1 md:border-l">
+                            {((npcShopCount ?? 0) > 0 || (npcShopCount ?? 0) > 0) && <div className="flex items-center" title={`Sold by ${(npcShopCount ?? 0).toLocaleString()} shops`}>
+                                <Icon className="shrink-0 emphasis" name="shop" />
+                                <span className="truncate">
+                                    {(npcShopCount ?? 0).toLocaleString()}
+                                </span>
+                            </div>}
+                        </div>
+                        <div className="item-data flex items-center px-2 md:py-1 border-l">
                             {((mobDropCount ?? 0) > 0 || (mobMvpDropCount ?? 0) > 0) && <div className="flex items-center" title={`Dropped by ${((mobDropCount ?? 0) + (mobMvpDropCount ?? 0)).toLocaleString()} mobs`}>
                                 <Icon className="shrink-0 emphasis" name="drop" />
                                 <span className="truncate">
@@ -108,9 +119,9 @@ export const ItemRow = ({
                             </div>}
                         </div>
                     </div>
-                    <div className="col-span-2 grid grid-cols-2  grid-rows-[1fr_min-content_1fr]">
+                    <div className="col-span-3 md:col-span-2 grid grid-cols-2 grid-rows-[1fr_min-content_1fr]">
                         <div className="item-separator px-2 md:border-l col-span-2 flex items-center text-base font-semibold">Used for</div>
-                        <div className="item-separator px-2 md:pb-0.5 md:border-l text-sm header">One-time</div>
+                        <div className="item-separator px-2 md:pb-0.5 md:border-l text-sm header truncate" title="One-time">One-time</div>
                         <div className="px-2 md:pb-0.5 text-sm header">Repeat</div>
                         <div className="item-data item-separator flex rounded-bl-lg md:rounded-none items-center px-2 md:py-1 md:border-l">
                             {((ingredientSum ?? 0) > 0) && <div className="flex items-center" title={`One-time recipes use x${ingredientSum?.toLocaleString()}`}>

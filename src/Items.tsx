@@ -17,6 +17,7 @@ export interface Item {
     buy?: number;
     sell?: number;
     weight?: number;
+    npcShopCount?: number;
     mobDropCount?: number;
     mobMvpDropCount?: number;
     ingredientCount?: number;
@@ -67,6 +68,7 @@ export const Items = () => {
         Item.Buy,
         Item.Sell,
         Item.Weight,
+        NpcShopCount.NpcCount AS NpcCount,
         MobDropCount.MobCount AS MobCount,
         MobMvpDropCount.MobMvpCount AS MobMvpCount,
         IngredientItem.IngredientCount AS IngredientCount,
@@ -92,6 +94,13 @@ export const Items = () => {
         FROM Item
 
         LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.Id
+
+        LEFT JOIN (
+            SELECT ItemId,
+            COUNT(NpcId) AS "NpcCount"
+            FROM NpcItem
+            GROUP BY ItemId
+        ) AS NpcShopCount ON Item.Id = NpcShopCount.ItemId
 
         LEFT JOIN (
             SELECT ItemId,
@@ -250,17 +259,18 @@ export const Items = () => {
                     buy: Number(value[4]),
                     sell: Number(value[5]),
                     weight: Number(value[6]),
-                    mobDropCount: Number(value[7]),
-                    mobMvpDropCount: Number(value[8]),
-                    ingredientCount: Number(value[9]),
-                    ingredientSum: Number(value[10]),
-                    repeatableIngredientCount: Number(value[11]),
-                    repeatableIngredientSum: Number(value[12]),
-                    productCount: Number(value[13]),
-                    productSum: Number(value[14]),
-                    repeatableProductCount: Number(value[15]),
-                    repeatableProductSum: Number(value[16]),
-                    overcharge: Boolean(value[17]),
+                    npcShopCount: Number(value[7]),
+                    mobDropCount: Number(value[8]),
+                    mobMvpDropCount: Number(value[9]),
+                    ingredientCount: Number(value[10]),
+                    ingredientSum: Number(value[11]),
+                    repeatableIngredientCount: Number(value[12]),
+                    repeatableIngredientSum: Number(value[13]),
+                    productCount: Number(value[14]),
+                    productSum: Number(value[15]),
+                    repeatableProductCount: Number(value[16]),
+                    repeatableProductSum: Number(value[17]),
+                    overcharge: Boolean(value[18]),
                 }))
             ))[0];
 
@@ -341,7 +351,9 @@ export const Items = () => {
             }
 
             let outerFilter = ``;
-            const sanitizedItem = item?.replaceAll("'", "''");
+
+            // change single ' to double '' for searching in the database; remove all new lines
+            const sanitizedItem = item?.replaceAll("'", "''").replaceAll(/\r?\n|\r/g, "");
 
             // if a list of comma-separated ids is provided, search for all ids
             const idList = sanitizedItem?.includes(",") ? sanitizedItem?.replaceAll(/[^0-9,]/g, "").split(",").filter(Boolean) : null;
@@ -365,16 +377,17 @@ export const Items = () => {
                     buy: Number(value[4]),
                     sell: Number(value[5]),
                     weight: Number(value[6]),
-                    mobDropCount: Number(value[7]),
-                    mobMvpDropCount: Number(value[8]),
-                    ingredientCount: Number(value[9]),
-                    ingredientSum: Number(value[10]),
-                    repeatableIngredientCount: Number(value[11]),
-                    repeatableIngredientSum: Number(value[12]),
-                    productCount: Number(value[13]),
-                    productSum: Number(value[14]),
-                    repeatableProductCount: Number(value[15]),
-                    repeatableProductSum: Number(value[16]),
+                    npcShopCount: Number(value[7]),
+                    mobDropCount: Number(value[8]),
+                    mobMvpDropCount: Number(value[9]),
+                    ingredientCount: Number(value[10]),
+                    ingredientSum: Number(value[11]),
+                    repeatableIngredientCount: Number(value[12]),
+                    repeatableIngredientSum: Number(value[13]),
+                    productCount: Number(value[14]),
+                    productSum: Number(value[15]),
+                    repeatableProductCount: Number(value[16]),
+                    repeatableProductSum: Number(value[17]),
                     // use the overcharge value from the unfiltered item
                     overcharge: data.find(datum => datum.id === Number(value[0]))?.overcharge ?? false,
                 })).filter(item => (overcharge ? (overcharge === "true" ? item.overcharge : !item.overcharge): true)

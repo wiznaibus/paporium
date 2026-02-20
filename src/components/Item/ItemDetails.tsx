@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import initSqlJs, { type Database } from "sql.js";
 import { formatSearchParams, type SearchFilter } from "../../utilities/SearchFilter";
+import { clamp } from "../../utilities/Calculations";
 import { Badge } from "../Badge";
-import { DropDetails, type Drop } from "../DropDetails";
 import { Icon } from "../Icon";
 import { ItemImage } from "./ItemImage";
 import { RecipeDetails } from "../Recipe/RecipeDetails";
-import { clamp } from "../../utilities/Calculations";
+import { type Drop, DropDetails } from "../DropDetails";
+import { type Shop, ShopDetails } from "../ShopDetails";
 
 export interface Item {
     id?: number;
@@ -50,6 +51,7 @@ export const ItemDetails = ({
 }) => {
     const [db, setDb] = useState<Database | null>(null);
     const [item, setItem] = useState<Item>();
+    const [shops, setShops] = useState<Shop[]>([]);
     const [drops, setDrops] = useState<Drop[]>([]);
     const [mvpDrops, setMvpDrops] = useState<Drop[]>([]);
     const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -226,6 +228,32 @@ export const ItemDetails = ({
 
             setRecipes(recipeData);
 
+            setShops(db.exec(`
+                SELECT
+                Npc.Id,
+                Npc.Name,
+                Map.MapId,
+                Map.Name,
+                Npc.X,
+                Npc.Y,
+                NpcItem.Slot
+                FROM NpcItem
+                JOIN Npc ON NpcItem.NpcId = Npc.Id
+                JOIN Item ON NpcItem.ItemId = Item.Id
+                JOIN Map ON Npc.MapId = Map.Id
+                WHERE NpcItem.ItemId = ${id}
+                ORDER BY Map.MapId
+            `).map(({ values }) => (
+                values.map((value) => ({
+                    npcId: Number(value[0]),
+                    npc: value[1]?.toString(),
+                    mapId: value[2]?.toString(),
+                    map: value[3]?.toString(),
+                    x: Number(value[4]),
+                    y: Number(value[5]),
+                    slot: Number(value[6]),
+                }))
+            ))[0]);
 
             setDrops(db.exec(`
                 SELECT
@@ -343,8 +371,10 @@ export const ItemDetails = ({
                 </div>
             </div>
 
-            {(drops || mvpDrops || recipes) && (
+            {(shops || drops || mvpDrops || recipes) && (
                 <div className="grow max-h-full overflow-y-auto flex flex-col gap-2 mx-1" tabIndex={0}>
+                    {shops && <ShopDetails shops={shops} />}
+
                     {(drops || mvpDrops) && <DropDetails drops={drops} mvpDrops={mvpDrops} />}
 
                     {recipes && (
