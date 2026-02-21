@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import initSqlJs, { type Database } from "sql.js";
-import { formatSearchParams, type SearchFilter } from "../../utilities/SearchFilter";
+import type { SearchFilter } from "../../utilities/SearchFilter";
 import { clamp } from "../../utilities/Calculations";
 import { Badge } from "../Badge";
 import { Icon } from "../Icon";
@@ -81,12 +81,6 @@ export const ItemDetails = ({
 
     useEffect(() => {
         if (db) {
-            const {
-                jobs,
-                recipeItemTypes,
-                recipeTypes,
-            } = formatSearchParams(filter);
-
             setItem(db.exec(`
                 SELECT
                 Item.Id,
@@ -114,24 +108,13 @@ export const ItemDetails = ({
 
             let recipeFilter = ``;
 
-            recipeFilter += recipeItemTypes ? `
-                AND (RecipeItem.RecipeItemTypeId IN (${recipeItemTypes}))
-            ` : ``;
-
-            recipeFilter += jobs ? `
-                AND (Recipe.JobId IN (${jobs}))
-            ` : ``;
-            recipeFilter += recipeTypes ? `
-                AND Recipe.RecipeTypeId IN (${recipeTypes})
-            ` : ``;
-
             const recipeIds = db.exec(`
                 SELECT
                 DISTINCT RecipeId AS Id
                 FROM RecipeItem
 				JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
                 WHERE ItemId = ${id}
-                ${recipeFilter}
+                -- ${recipeFilter}
                 ORDER BY RecipeTypeId, RecipeId
             `).map(({ values }) => (
                 values.map((value): number => (Number(value[0])))
@@ -322,8 +305,8 @@ export const ItemDetails = ({
                                 2xl:grid-cols-5 2xl:grid-rows-[min-content_1fr] grid-flow-col
                                 2xl:pr-18
                             `}>
-                            <div className="header col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
-                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${filter.pricing === "ocdc" ? ` using Discount 10` : ``}`}>
+                            <div className="header 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
+                            <div className="item-data 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${filter.pricing === "ocdc" ? ` using Discount 10` : ``}`}>
                                 {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
                                 {buy.toLocaleString()}z
                             </div>
@@ -335,6 +318,15 @@ export const ItemDetails = ({
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
                             <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={`Weighs ${item.weight?.toString()}`}>
                                 {item.weight?.toLocaleString()}
+                            </div>
+                            <div className="header px-2 pb-0.5 text-sm">Shops</div>
+                            <div className="item-data flex items-center px-2 py-1 border-l" title={`Dropped by ${((shops?.length ?? 0)).toString()} mobs`}>
+                                {(shops?.length ?? 0) > 0 && (
+                                    <>
+                                        <Icon className="emphasis shrink-0" name="shop" />
+                                        {((shops?.length ?? 0) + (shops?.length ?? 0)).toLocaleString()}
+                                    </>
+                                )}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Drops</div>
                             <div className="item-data flex items-center px-2 py-1 border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
@@ -380,7 +372,7 @@ export const ItemDetails = ({
                     {recipes && (
                         <div className="flex flex-col gap-2">
                             {recipes.map(recipe =>
-                                <RecipeDetails key={recipe.id} recipe={recipe} selectedItemId={id} />
+                                <RecipeDetails key={recipe.id} recipe={recipe} filteredItemIds={[id]} />
                             )}
                         </div>
                     )}

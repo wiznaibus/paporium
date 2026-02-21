@@ -3,6 +3,8 @@
 @import "tailwindcss";
 
 @theme {
+    --breakpoint-3xl: 116rem;
+
     --color-midnight: #22162B;
     --color-sage-50: #F4F3F0;
     --color-sage-100: #E9E7E1;

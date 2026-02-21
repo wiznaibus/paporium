@@ -5,7 +5,7 @@ import './index.css';
 import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
 import { Icon } from "./components/Icon";
 import { ItemDetails } from "./components/Item/ItemDetails";
-import { ItemFilter } from "./components/ItemFilter";
+import { Filter } from "./components/Filter";
 import { ItemTable } from "./components/Item/ItemTable";
 import { Navbar } from "./components/Navbar";
 
@@ -406,7 +406,7 @@ export const Items = () => {
                     <Icon className="inline-block -mt-1 mr-1" name="warning" />
                     This database is under active development and may contain missing or inaccurate data or buggy functionality. Please report issues to @wiznaibus on Discord or visit <Link className="underline hover:text-gray-700" target="_blank" to="https://github.com/wiznaibus/paporium">https://github.com/wiznaibus/paporium</Link>. Thanks for stopping by!
                 </div>
-                {filterDataLoaded && <ItemFilter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />}
+                {filterDataLoaded && <Filter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />}
                 {(filterDataLoaded && filteredData) && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
                 <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
             </div>
