@@ -130,46 +130,20 @@ export const Filter = ({
                         {type === 'item' && `Filter Items by Recipe Components`}
                         {type === 'recipe' && `Filter Recipes`}
                     </legend>
-                    {type === 'recipe' ? (
-                        <label className="col-span-2 shrink flex items-center gap-1.5 font-semibold">Search:
-                            <input
-                                className="w-full shrink px-2 py-1 border border-sage-500 bg-sage-700/75 rounded-md"
-                                name="recipe"
-                                onBlur={handleRecipeInputChange}
-                                onChange={handleRecipeInputChange}
-                                placeholder="Enter recipe name"
-                                type="text"
-                                value={recipeInputValue}
-                            />
-                        </label>
-                    ) : <></>}
-                    {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
-                        <label className="flex items-center gap-1 truncate" key={i}>
-                            <input
-                                checked={value?.checked}
-                                name="recipeItemTypes"
-                                onChange={handleCheckboxChange}
-                                type="checkbox"
-                                value={value?.id}
-                            />
-                            <span className="truncate" title={value.name}>{value.name}</span>
-                        </label>
-                    ))}
-                    {/* Filtering by one-time/repeatable is currently only implemented for Recipes */}
-                    {type === 'recipe' && filter.repeatable?.map((value, i) => (
-                        <label className="flex items-center gap-1 truncate" key={i}>
-                            <input
-                                checked={value?.checked}
-                                name="repeatable"
-                                onChange={handleCheckboxChange}
-                                type="checkbox"
-                                value={value?.id}
-                            />
-                            <span className="truncate" title={value.name}>{value.name}</span>
-                        </label>
-                    ))}
                     {type === 'item' && (
                         <>
+                            {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
+                                <label className="flex items-center gap-1 truncate" key={i}>
+                                    <input
+                                        checked={value?.checked}
+                                        name="recipeItemTypes"
+                                        onChange={handleCheckboxChange}
+                                        type="checkbox"
+                                        value={value?.id}
+                                    />
+                                    <span className="truncate" title={value.name}>{value.name}</span>
+                                </label>
+                            ))}
                             <label className="flex items-center gap-1 truncate" key="no-overcharge">
                                 <input
                                     checked={filter.overcharge === "false"}
@@ -197,13 +171,40 @@ export const Filter = ({
                             </div>
                         </>
                     )}
+                    {type === 'recipe' && (
+                        <>
+                            <label className="col-span-2 shrink flex items-center gap-1.5 font-semibold">Search:
+                                <input
+                                    className="w-full shrink px-2 py-1 border border-sage-500 bg-sage-700/75 rounded-md"
+                                    name="recipe"
+                                    onBlur={handleRecipeInputChange}
+                                    onChange={handleRecipeInputChange}
+                                    placeholder="Enter recipe name"
+                                    type="text"
+                                    value={recipeInputValue}
+                                />
+                            </label>
+                            {filter.repeatable?.map((value, i) => (
+                                <label className="flex items-center gap-1 truncate" key={i}>
+                                    <input
+                                        checked={value?.checked}
+                                        name="repeatable"
+                                        onChange={handleCheckboxChange}
+                                        type="checkbox"
+                                        value={value?.id}
+                                    />
+                                    <span className="truncate" title={value.name}>{value.name}</span>
+                                </label>
+                            ))}
+                        </>
+                    )}
                 </fieldset>
                 <fieldset className={`col-span-2 md:col-span-1 item grid grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
                     <legend className="font-semibold">Item Buy/Sell Prices</legend>
                     <label className="flex items-center gap-1 truncate">
                         <input
                             checked={filter.pricing !== "ocdc"}
-                            name="itemPriceType"
+                            name="pricing"
                             onChange={handlePricingChange}
                             type="radio"
                             value=""
@@ -213,7 +214,7 @@ export const Filter = ({
                     <label className="flex items-center gap-1 truncate">
                         <input
                             checked={filter.pricing === "ocdc"}
-                            name="itemPriceType"
+                            name="pricing"
                             onChange={handlePricingChange}
                             type="radio"
                             value="ocdc"

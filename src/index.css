@@ -110,6 +110,12 @@
                 .recipe-data-emphasis {
                     color: var(--color-white);
                     font-weight: var(--font-weight-semibold);
+                    background-color: --alpha(var(--color-sakura-700) / 25%);
+                }
+
+                .recipe-data-selected {
+                    color: var(--color-white);
+                    font-weight: var(--font-weight-semibold);
                     background-color: --alpha(var(--color-yellow-300) / 25%);
                 }
             }

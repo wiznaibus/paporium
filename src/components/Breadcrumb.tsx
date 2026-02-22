@@ -8,7 +8,8 @@ export const Breadcrumb = ({
     page?: 'items' | 'recipes',
     title?: string,
 }): ReactNode => {
-    return (
+    /* Hide breadcrumb until detail pages are added */
+    return true ? <></> : (
         <div className="flex flex-wrap items-center gap-x-1 gap-y-2 justify-between">
             <div className="flex items-center gap-0.5 text-base font-semibold">
                 The Paporium

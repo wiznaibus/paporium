@@ -372,7 +372,7 @@ export const ItemDetails = ({
                     {recipes && (
                         <div className="flex flex-col gap-2">
                             {recipes.map(recipe =>
-                                <RecipeDetails key={recipe.id} recipe={recipe} filteredItemIds={[id]} />
+                                <RecipeDetails key={recipe.id} recipe={recipe} selectedItem={id} />
                             )}
                         </div>
                     )}

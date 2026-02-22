@@ -4,28 +4,46 @@ import { Icon } from "../Icon";
 import { ItemIcon } from "../Item/ItemIcon";
 
 export const RecipeDetails = ({
+    filteredItemIds,
     onItemClick,
     recipe,
-    filteredItemIds,
+    selectedItem,
 }: {
+    filteredItemIds?: number[],
     onItemClick?: (itemId: number) => void,
     recipe: Recipe,
-    filteredItemIds?: number[]
+    selectedItem?: number,
 }) => {
     const ItemDetails = ({ recipeItem }: { recipeItem: RecipeItem }) => {
         const children = (
             <div className="grow recipe-data flex border-t">
-                <div className={`px-0.5 basis-10 shrink-0 emphasis ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}`}>{recipeItem.id}</div>
-                <div className={`px-0.5 grow shrink ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}`} title={recipeItem.name}>
+                <div className={`
+                    px-0.5 basis-10 shrink-0 emphasis
+                    ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
+                    ${recipeItem.id === selectedItem ? `recipe-data-selected` : ``}
+                `}>
+                    {recipeItem.id}
+                    </div>
+                <div className={`
+                    px-0.5 grow shrink
+                    ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
+                    ${recipeItem.id === selectedItem ? `recipe-data-selected` : ``}
+                `} title={recipeItem.name}>
                     {recipeItem.name}
                 </div>
-                <div className={`px-0.5 shrink-0 ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}`}>x{recipeItem.quantity?.toLocaleString()}</div>
+                <div className={`
+                    px-0.5 shrink-0
+                    ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
+                    ${recipeItem.id === selectedItem ? `recipe-data-selected` : ``}
+                `}>
+                    x{recipeItem.quantity?.toLocaleString()}
+                </div>
             </div>
         );
 
         return (
             onItemClick && typeof onItemClick === 'function' ? <button
-                className="grow flex text-left cursor-pointer hover:bg-sakura-400"
+                className="grow flex text-left cursor-pointer hover:bg-sakura-200"
                 onClick={() => onItemClick?.(recipeItem.id ?? 0)}
                 type="button"
             >{children}</button> : children

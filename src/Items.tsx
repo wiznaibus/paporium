@@ -36,6 +36,7 @@ export const defaultFilter = {
     item: "",
     itemTypes: [],
     jobs: [],
+    recipe: "",
     recipeItemTypes: [],
     recipeTypes: [],
     repeatable: [{ id: 0, name: "One-time", checked: false }, { id: 1, name: "Repeatable", checked: false }],
@@ -237,6 +238,7 @@ export const Items = () => {
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 overcharge: parsedSearchParams.overcharge,
+                pricing: parsedSearchParams.pricing,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 repeatable: parsedSearchParams.repeatable,
@@ -299,6 +301,7 @@ export const Items = () => {
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 overcharge: parsedSearchParams.overcharge,
+                pricing: parsedSearchParams.pricing,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 repeatable: parsedSearchParams.repeatable,
@@ -429,7 +432,7 @@ export const Items = () => {
         <>
             <Navbar active="items" />
             <div className="relative mt-14 flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
-                <div className="xl:col-span-2 my-2.5">
+                <div className="xl:col-span-2 mb-2.5">
                     <Breadcrumb />
                     <div className="text-stone-900 bg-yellow-400 border border-yellow-300 rounded-lg my-3 p-2">
                         <Icon className="inline-block -mt-1 mr-1" name="warning" />

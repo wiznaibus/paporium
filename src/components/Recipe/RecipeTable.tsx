@@ -11,12 +11,14 @@ export const RecipeTable = ({
     filteredItemIds,
     recipes,
     recipesPerPage = 100,
+    selectedItem,
     setSelectedItem,
 }: {
     filter: SearchFilter,
     filteredItemIds?: number[],
     recipes: Recipe[],
     recipesPerPage?: number,
+    selectedItem?: number,
     setSelectedItem?: (item: number) => void,
 }): ReactNode => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -59,6 +61,7 @@ export const RecipeTable = ({
                             recipe={recipe}
                             filteredItemIds={filteredItemIds}
                             onItemClick={setSelectedItem}
+                            selectedItem={selectedItem}
                         />
                     ))
                 }

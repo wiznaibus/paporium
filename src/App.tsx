@@ -24,20 +24,19 @@ export const App = () => {
 
   return (
    <div className="h-screen w-full p-2 flex flex-col pt-8 md:pt-0 items-center md:justify-center gap-1">
-        <h1 className="title text-6xl font-bold mb-4">
-            Welcome to the Paporium!
-        </h1>
-        <div className="flex flex-col md:flex-row">
-            <div className="md:hidden">
-                <Links />
-            </div>
-            <div className="flex flex-col items-center">
+
+        <div className="grid grid-cols-[1fr_max-content]">
+            <h1 className="title text-center text-6xl font-bold mb-4">
+                Welcome to the Paporium!
+            </h1>
+            <div className="flex flex-col items-center row-start-3 md:row-start-2">
+
                 <div className="relative max-w-2xl p-1 rounded-lg bg-sakura-800 border border-sakura-600 ">
                     <img className="rounded-lg" src="./assets/images/splash.png" />
                 </div>
                 <span className="text-sm">Splash by <Link className="underline hover:text-yellow-300" target="_blank" to="https://cara.app/lorettaamaranth">Loretta</Link></span>
             </div>
-            <div className="hidden md:block">
+            <div className="row-start-2">
                 <Links />
             </div>
         </div>
