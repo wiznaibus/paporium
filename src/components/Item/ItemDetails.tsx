@@ -43,10 +43,12 @@ export interface Recipe {
 export const ItemDetails = ({
     id,
     filter,
+    pricing,
     setSelectedItem
 }: {
     id: number,
     filter?: SearchFilter,
+    pricing?: string,
     setSelectedItem?: (item: number) => void,
 }) => {
     const [db, setDb] = useState<Database | null>(null);
@@ -116,7 +118,7 @@ export const ItemDetails = ({
                 ORDER BY RecipeTypeId, RecipeId
             `).map(({ values }) => (
                 values.map((value): number => (Number(value[0])))
-            ))[0].length);
+            ))[0]?.length ?? 0);
             let recipeFilter = ``;
 
             if (filter) {
@@ -315,9 +317,9 @@ export const ItemDetails = ({
     useEffect(() => {
         const buyFloor = (item?.buy ?? 0) === 0 ? 0 : 1;
         const dcBuy = Math.floor((item?.buy ?? 0) * 0.76);
-        setBuy(filter?.pricing === "ocdc" ? clamp(dcBuy, buyFloor, dcBuy) : item?.buy ?? 0);
-        setSell(filter?.pricing === "ocdc" ? Math.floor((item?.sell ?? 0) * 1.24) : item?.sell ?? 0);
-    }, [item, filter]);
+        setBuy(pricing === "ocdc" ? clamp(dcBuy, buyFloor, dcBuy) : item?.buy ?? 0);
+        setSell(pricing === "ocdc" ? Math.floor((item?.sell ?? 0) * 1.24) : item?.sell ?? 0);
+    }, [item, pricing]);
 
     return item && (
         <div className="sticky top-14 h-[calc(100vh-(var(--spacing)*16))] flex flex-col gap-2 py-2 px-2 xl:px-0">
@@ -336,13 +338,13 @@ export const ItemDetails = ({
                                 2xl:pr-18
                             `}>
                             <div className="header 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
-                            <div className="item-data 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${filter?.pricing === "ocdc" ? ` using Discount 10` : ``}`}>
-                                {filter?.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
+                            <div className="item-data 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${pricing === "ocdc" ? ` using Discount 10` : ``}`}>
+                                {pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
                                 {buy.toLocaleString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Sell</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${sell} zeny${filter?.pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
-                                {filter?.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
+                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${sell} zeny${pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
+                                {pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
                                 {sell.toLocaleString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
@@ -395,8 +397,8 @@ export const ItemDetails = ({
 
             <p className="text-sm">{
                 filter
-                ? `Showing ${recipes?.length ?? 0} out of ${recipeCount} recipe${recipeCount > 1 ? `s` : ``}`
-                : `Showing all ${recipeCount} recipe${recipeCount > 1 ? `s` : ``}`
+                ? `Showing ${recipes?.length ?? 0} out of ${recipeCount} recipe${recipeCount !== 1 ? `s` : ``}`
+                : `Showing all ${recipeCount} recipe${recipeCount !== 1 ? `s` : ``}`
             }</p>
 
             {(shops || drops || mvpDrops || recipes) && (

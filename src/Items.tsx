@@ -447,7 +447,7 @@ export const Items = () => {
                     xl:relative xl:overflow-clip xl:overscroll-auto xl:bg-transparent xl:border-l-0 xl:shadow-none
                 `}>
                     {selectedItem > 0 && (
-                        <ItemDetails id={selectedItem} filter={filter} setSelectedItem={handleSetSelectedItem} />
+                        <ItemDetails id={selectedItem} filter={filter} pricing={filter.pricing} setSelectedItem={handleSetSelectedItem} />
                     )}
                 </div>
             </div>

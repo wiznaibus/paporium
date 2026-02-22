@@ -90,6 +90,7 @@ export const Recipes = () => {
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 overcharge: parsedSearchParams.overcharge,
                 pricing: parsedSearchParams.pricing,
+                recipe: parsedSearchParams.recipe,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 repeatable: parsedSearchParams.repeatable,
@@ -119,6 +120,7 @@ export const Recipes = () => {
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 overcharge: parsedSearchParams.overcharge,
                 pricing: parsedSearchParams.pricing,
+                recipe: parsedSearchParams.recipe,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 repeatable: parsedSearchParams.repeatable?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
@@ -329,7 +331,7 @@ export const Recipes = () => {
                     xl:relative xl:overflow-clip xl:overscroll-auto xl:bg-transparent xl:border-l-0 xl:shadow-none
                 `}>
                     {selectedItem > 0 && (
-                        <ItemDetails id={selectedItem} setSelectedItem={handleSetSelectedItem} />
+                        <ItemDetails id={selectedItem} pricing={filter.pricing} setSelectedItem={handleSetSelectedItem} />
                     )}
                 </div>
             </div>
