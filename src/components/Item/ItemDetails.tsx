@@ -290,7 +290,7 @@ export const ItemDetails = ({
     }, [item, filter]);
 
     return item && (
-        <div className="sticky top-0 h-screen flex flex-col gap-2 py-2 px-2 xl:px-0">
+        <div className="sticky top-14 h-[calc(100vh-(var(--spacing)*16))] flex flex-col gap-2 py-2 px-2 xl:px-0">
             <div className="flex flex-col mb-2">
                 <div className="item relative flex shadow-stone-800/50">
                     <div className="flex flex-col grow">

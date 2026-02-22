@@ -15,22 +15,20 @@ export const RecipeDetails = ({
     const ItemDetails = ({ recipeItem }: { recipeItem: RecipeItem }) => {
         const children = (
             <div className="grow recipe-data flex border-t">
-                <div className={`px-0.5 basis-10 emphasis ${filteredItemIds?.includes(recipeItem.id ?? 0) && `recipe-data-emphasis`}`}>{recipeItem.id}</div>
-                <div className={`px-0.5 grow truncate ${filteredItemIds?.includes(recipeItem.id ?? 0) && `recipe-data-emphasis`}`} title={recipeItem.name}>
+                <div className={`px-0.5 basis-10 shrink-0 emphasis ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}`}>{recipeItem.id}</div>
+                <div className={`px-0.5 grow shrink ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}`} title={recipeItem.name}>
                     {recipeItem.name}
                 </div>
-                <div className={`px-0.5 ${filteredItemIds?.includes(recipeItem.id ?? 0) && `recipe-data-emphasis`}`}>x{recipeItem.quantity?.toLocaleString()}</div>
+                <div className={`px-0.5 shrink-0 ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}`}>x{recipeItem.quantity?.toLocaleString()}</div>
             </div>
         );
 
         return (
-            <div className="flex">
-                {onItemClick && typeof onItemClick === 'function' ? <button
-                    className="grow flex text-left cursor-pointer hover:bg-sakura-400"
-                    onClick={() => onItemClick?.(recipeItem.id ?? 0)}
-                    type="button"
-                >{children}</button> : children}
-            </div>
+            onItemClick && typeof onItemClick === 'function' ? <button
+                className="grow flex text-left cursor-pointer hover:bg-sakura-400"
+                onClick={() => onItemClick?.(recipeItem.id ?? 0)}
+                type="button"
+            >{children}</button> : children
         );
     };
 

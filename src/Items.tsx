@@ -3,9 +3,10 @@ import initSqlJs, { type Database } from "sql.js";
 import { Link, useSearchParams } from 'react-router-dom';
 import './index.css';
 import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
+import { Breadcrumb } from "./components/Breadcrumb";
+import { Filter } from "./components/Filter";
 import { Icon } from "./components/Icon";
 import { ItemDetails } from "./components/Item/ItemDetails";
-import { Filter } from "./components/Filter";
 import { ItemTable } from "./components/Item/ItemTable";
 import { Navbar } from "./components/Navbar";
 
@@ -31,18 +32,21 @@ export interface Item {
     overcharge?: boolean;
 }
 
+const defaultFilter = {
+    item: "",
+    itemTypes: [],
+    jobs: [],
+    recipeItemTypes: [],
+    recipeTypes: [],
+};
+
 export const Items = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [db, setDb] = useState<Database | null>(null);
     const [data, setData] = useState<Item[]>([]);
     const [filteredData, setFilteredData] = useState<Item[]>([]);
-    const [filter, setFilter] = useState<SearchFilter>({
-        item: "",
-        itemTypes: [],
-        jobs: [],
-        recipeItemTypes: [],
-        recipeTypes: [],
-    });
+    const [filterItems, setFilterItems] = useState<SearchFilter>(defaultFilter);
+    const [filter, setFilter] = useState<SearchFilter>(defaultFilter);
     const [selectedItem, setSelectedItem] = useState<number>(0);
     const [filterDataLoaded, setFilterDataLoaded] = useState<boolean>(false);
 
@@ -235,6 +239,9 @@ export const Items = () => {
                 overcharge: parsedSearchParams.overcharge,
             };
 
+            // set the filter items
+            setFilterItems(databaseFilterItems);
+
             // merge the searchParams into the database filter data
             setFilter({
                 ...mergeSearchFilter(databaseFilterItems, searchParamsFilterItems)
@@ -293,9 +300,9 @@ export const Items = () => {
                 overcharge: parsedSearchParams.overcharge,
             };
 
-            // merge the searchParams into the current filter
+            // merge the searchParams into the filter items
             setFilter({
-                ...mergeSearchFilter(filter, searchParamsFilterItems)
+                ...mergeSearchFilter(filterItems, searchParamsFilterItems)
             });
         }
     }, [db, searchParams]);
@@ -399,25 +406,28 @@ export const Items = () => {
     }, [db, data, filter, searchParams]);
 
     return (
-        <div className="flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
-            <div className="xl:col-span-2 my-2.5">
-                <Navbar active="items" />
-                <div className="text-stone-900 bg-yellow-400 border border-yellow-300 rounded-lg my-3 p-2">
-                    <Icon className="inline-block -mt-1 mr-1" name="warning" />
-                    This database is under active development and may contain missing or inaccurate data or buggy functionality. Please report issues to @wiznaibus on Discord or visit <Link className="underline hover:text-gray-700" target="_blank" to="https://github.com/wiznaibus/paporium">https://github.com/wiznaibus/paporium</Link>. Thanks for stopping by!
+        <>
+            <Navbar active="items" />
+            <div className="relative mt-14 flex xl:grid xl:grid-cols-3 gap-4 mx-2 results">
+                <div className="xl:col-span-2 my-2.5">
+                    <Breadcrumb />
+                    <div className="text-stone-900 bg-yellow-400 border border-yellow-300 rounded-lg my-3 p-2">
+                        <Icon className="inline-block -mt-1 mr-1" name="warning" />
+                        This database is under active development and may contain missing or inaccurate data or buggy functionality. Please report issues to @wiznaibus on Discord or visit <Link className="underline hover:text-gray-700" target="_blank" to="https://github.com/wiznaibus/paporium">https://github.com/wiznaibus/paporium</Link>. Thanks for stopping by!
+                    </div>
+                    {filterDataLoaded && <Filter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />}
+                    {(filterDataLoaded && filteredData) && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
+                    <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
                 </div>
-                {filterDataLoaded && <Filter filter={filter} filterDataLoaded={filterDataLoaded} setFilter={handleSetFilter} />}
-                {(filterDataLoaded && filteredData) && <ItemTable filter={filter} items={filteredData} selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} />}
-                <p className="text-center mb-1">for Ruby <span className="text-pink-400">❤</span> love Nata</p>
+                <div className={`
+                    panel fixed top-0 right-0 z-20 overflow-auto overscroll-contain shadow-md shadow-black
+                    xl:relative xl:overflow-clip xl:overscroll-auto xl:bg-transparent xl:border-l-0 xl:shadow-none
+                `}>
+                    {selectedItem > 0 && (
+                        <ItemDetails id={selectedItem} filter={filter} setSelectedItem={handleSetSelectedItem} />
+                    )}
+                </div>
             </div>
-            <div className={`
-                panel fixed top-0 right-0 z-20 overflow-auto overscroll-contain shadow-md shadow-black
-                xl:relative xl:overflow-clip xl:overscroll-auto xl:bg-transparent xl:border-l-0 xl:shadow-none
-            `}>
-                {selectedItem > 0 && (
-                    <ItemDetails id={selectedItem} filter={filter} setSelectedItem={handleSetSelectedItem} />
-                )}
-            </div>
-        </div>
+        </>
     );
 };

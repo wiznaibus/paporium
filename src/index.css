@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playwrite+CA:wght@100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -37,6 +38,10 @@
         font-family: "SN Pro", sans-serif;
         font-weight: 400;
         font-size: 12pt;
+    }
+
+    .title {
+        font-family: "Dancing Script", cursive;
     }
 
     .white-pot {
