@@ -422,7 +422,7 @@ export const Items = () => {
                     overcharge: data.find(datum => datum.id === Number(value[0]))?.overcharge ?? false,
                 })).filter(item => (overcharge ? (overcharge === "true" ? item.overcharge : !item.overcharge): true)
                 )
-            ))[0];
+            ))[0] ?? [];
 
             setFilteredData(filteredData);
         }

@@ -31,7 +31,7 @@ export const App = () => {
             </h1>
             <div className="flex flex-col items-center row-start-3 md:row-start-2">
 
-                <div className="relative max-w-2xl p-1 rounded-lg bg-sakura-800 border border-sakura-600 ">
+                <div className="relative max-w-2xl rounded-lg border border-sakura-600">
                     <img className="rounded-lg" src="./assets/images/splash.png" />
                 </div>
                 <span className="text-sm">Splash by <Link className="underline hover:text-yellow-300" target="_blank" to="https://cara.app/lorettaamaranth">Loretta</Link></span>

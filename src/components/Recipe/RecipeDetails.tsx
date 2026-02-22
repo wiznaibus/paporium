@@ -7,12 +7,12 @@ export const RecipeDetails = ({
     filteredItemIds,
     onItemClick,
     recipe,
-    selectedItem,
+    selectedItemId,
 }: {
     filteredItemIds?: number[],
     onItemClick?: (itemId: number) => void,
     recipe: Recipe,
-    selectedItem?: number,
+    selectedItemId?: number,
 }) => {
     const ItemDetails = ({ recipeItem }: { recipeItem: RecipeItem }) => {
         const children = (
@@ -20,21 +20,21 @@ export const RecipeDetails = ({
                 <div className={`
                     px-0.5 basis-10 shrink-0 emphasis
                     ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
-                    ${recipeItem.id === selectedItem ? `recipe-data-selected` : ``}
+                    ${recipeItem.id === selectedItemId ? `recipe-data-selected` : ``}
                 `}>
                     {recipeItem.id}
                     </div>
                 <div className={`
                     px-0.5 grow shrink
                     ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
-                    ${recipeItem.id === selectedItem ? `recipe-data-selected` : ``}
+                    ${recipeItem.id === selectedItemId ? `recipe-data-selected` : ``}
                 `} title={recipeItem.name}>
                     {recipeItem.name}
                 </div>
                 <div className={`
                     px-0.5 shrink-0
                     ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
-                    ${recipeItem.id === selectedItem ? `recipe-data-selected` : ``}
+                    ${recipeItem.id === selectedItemId ? `recipe-data-selected` : ``}
                 `}>
                     x{recipeItem.quantity?.toLocaleString()}
                 </div>

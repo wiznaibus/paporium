@@ -50,7 +50,7 @@ export const RecipeTable = ({
         />
     );
 
-    return (
+    return recipes.length > 0 ? (
         <div className="relative">
             {paginationElement}
             <div className="grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-3 gap-2">
@@ -61,12 +61,12 @@ export const RecipeTable = ({
                             recipe={recipe}
                             filteredItemIds={filteredItemIds}
                             onItemClick={setSelectedItem}
-                            selectedItem={selectedItem}
+                            selectedItemId={selectedItem}
                         />
                     ))
                 }
             </div>
             {paginationElement}
         </div>
-    );
+    ) : <p className="my-4 text-sm">No results</p>;
 };
