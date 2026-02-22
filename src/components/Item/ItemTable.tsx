@@ -40,15 +40,15 @@ export const ItemTable = ({
     const paginationElement = (
         <Pagination
             changePage={changePage}
-            currentStartItem={clamp((currentPage - 1) * itemsPerPage + 1, 1, items?.length ?? 0)}
-            currentEndItem={clamp(currentPage * itemsPerPage, 1, items?.length ?? 0)}
+            currentStartItem={clamp((currentPage - 1) * itemsPerPage + 1, 0, items?.length ?? 0)}
+            currentEndItem={clamp(currentPage * itemsPerPage, 0, items?.length ?? 0)}
             totalItems={items?.length ?? 0}
             currentPage={currentPage}
             totalPages={totalPages}
         />
     );
 
-    return (
+    return items.length > 0 ? (
         <div className="relative">
             {paginationElement}
             <div className="flex flex-col gap-2">
@@ -66,5 +66,5 @@ export const ItemTable = ({
             </div>
             {paginationElement}
         </div>
-    );
+    ) : <p className="my-4 text-sm">No results</p>;
 };

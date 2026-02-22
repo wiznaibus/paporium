@@ -1,8 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playwrite+CA:wght@100..400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
 @import "tailwindcss";
 
 @theme {
+    --breakpoint-3xl: 116rem;
+
     --color-midnight: #22162B;
     --color-sage-50: #F4F3F0;
     --color-sage-100: #E9E7E1;
@@ -35,6 +38,10 @@
         font-family: "SN Pro", sans-serif;
         font-weight: 400;
         font-size: 12pt;
+    }
+
+    .title {
+        font-family: "Dancing Script", cursive;
     }
 
     .white-pot {
@@ -101,6 +108,12 @@
                 border-color: var(--color-sage-700);
 
                 .recipe-data-emphasis {
+                    color: var(--color-white);
+                    font-weight: var(--font-weight-semibold);
+                    background-color: --alpha(var(--color-sakura-700) / 25%);
+                }
+
+                .recipe-data-selected {
                     color: var(--color-white);
                     font-weight: var(--font-weight-semibold);
                     background-color: --alpha(var(--color-yellow-300) / 25%);

@@ -34,7 +34,7 @@ export const Pagination = ({
 
     return (
         <div className="flex justify-between my-4 text-sm">
-            <p>{`Showing ${currentStartItem} to ${currentEndItem} of ${totalItems} results`}</p>
+            <p>{`Showing ${currentStartItem} to ${currentEndItem} of ${totalItems} result${totalItems !== 1 ? `s` : ``}`}</p>
             <div className="flex gap-1">
                 <Button type="button" title="First page" onClick={() => changePage?.(1)}><Icon name="double-arrow-left" /></Button>
                 <Button type="button" title="Previous page" onClick={() => changePage?.(currentPage - 1)}><Icon name="arrow-left" /></Button>

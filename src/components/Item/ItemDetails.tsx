@@ -43,10 +43,12 @@ export interface Recipe {
 export const ItemDetails = ({
     id,
     filter,
+    pricing,
     setSelectedItem
 }: {
     id: number,
-    filter: SearchFilter,
+    filter?: SearchFilter,
+    pricing?: string,
     setSelectedItem?: (item: number) => void,
 }) => {
     const [db, setDb] = useState<Database | null>(null);
@@ -54,6 +56,7 @@ export const ItemDetails = ({
     const [shops, setShops] = useState<Shop[]>([]);
     const [drops, setDrops] = useState<Drop[]>([]);
     const [mvpDrops, setMvpDrops] = useState<Drop[]>([]);
+    const [recipeCount, setRecipeCount] = useState<number>(0);
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [buy, setBuy] = useState<number>(0);
     const [sell, setSell] = useState<number>(0);
@@ -81,12 +84,6 @@ export const ItemDetails = ({
 
     useEffect(() => {
         if (db) {
-            const {
-                jobs,
-                recipeItemTypes,
-                recipeTypes,
-            } = formatSearchParams(filter);
-
             setItem(db.exec(`
                 SELECT
                 Item.Id,
@@ -112,18 +109,36 @@ export const ItemDetails = ({
                 }))
             ))[0][0]);
 
+            setRecipeCount(db.exec(`
+                SELECT
+                DISTINCT RecipeId AS Id
+                FROM RecipeItem
+				JOIN Recipe ON RecipeItem.RecipeId = Recipe.Id
+                WHERE ItemId = ${id}
+                ORDER BY RecipeTypeId, RecipeId
+            `).map(({ values }) => (
+                values.map((value): number => (Number(value[0])))
+            ))[0]?.length ?? 0);
             let recipeFilter = ``;
 
-            recipeFilter += recipeItemTypes ? `
-                AND (RecipeItem.RecipeItemTypeId IN (${recipeItemTypes}))
-            ` : ``;
+            if (filter) {
+                const {
+                    jobs,
+                    recipeItemTypes,
+                    recipeTypes,
+                } = formatSearchParams(filter);
 
-            recipeFilter += jobs ? `
-                AND (Recipe.JobId IN (${jobs}))
-            ` : ``;
-            recipeFilter += recipeTypes ? `
-                AND Recipe.RecipeTypeId IN (${recipeTypes})
-            ` : ``;
+                recipeFilter += recipeItemTypes ? `
+                    AND (RecipeItem.RecipeItemTypeId IN (${recipeItemTypes}))
+                ` : ``;
+
+                recipeFilter += jobs ? `
+                    AND (Recipe.JobId IN (${jobs}))
+                ` : ``;
+                recipeFilter += recipeTypes ? `
+                    AND Recipe.RecipeTypeId IN (${recipeTypes})
+                ` : ``;
+            }
 
             const recipeIds = db.exec(`
                 SELECT
@@ -302,12 +317,12 @@ export const ItemDetails = ({
     useEffect(() => {
         const buyFloor = (item?.buy ?? 0) === 0 ? 0 : 1;
         const dcBuy = Math.floor((item?.buy ?? 0) * 0.76);
-        setBuy(filter.pricing === "ocdc" ? clamp(dcBuy, buyFloor, dcBuy) : item?.buy ?? 0);
-        setSell(filter.pricing === "ocdc" ? Math.floor((item?.sell ?? 0) * 1.24) : item?.sell ?? 0);
-    }, [item, filter]);
+        setBuy(pricing === "ocdc" ? clamp(dcBuy, buyFloor, dcBuy) : item?.buy ?? 0);
+        setSell(pricing === "ocdc" ? Math.floor((item?.sell ?? 0) * 1.24) : item?.sell ?? 0);
+    }, [item, pricing]);
 
     return item && (
-        <div className="sticky top-0 h-screen flex flex-col gap-2 py-2 px-2 xl:px-0">
+        <div className="sticky top-14 h-[calc(100vh-(var(--spacing)*16))] flex flex-col gap-2 py-2 px-2 xl:px-0">
             <div className="flex flex-col mb-2">
                 <div className="item relative flex shadow-stone-800/50">
                     <div className="flex flex-col grow">
@@ -322,19 +337,28 @@ export const ItemDetails = ({
                                 2xl:grid-cols-5 2xl:grid-rows-[min-content_1fr] grid-flow-col
                                 2xl:pr-18
                             `}>
-                            <div className="header col-span-2 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
-                            <div className="item-data col-span-2 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${filter.pricing === "ocdc" ? ` using Discount 10` : ``}`}>
-                                {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
+                            <div className="header 2xl:col-span-1 px-2 pb-0.5 text-sm">Buy</div>
+                            <div className="item-data 2xl:col-span-1 flex items-center 2xl:rounded-bl-lg px-2 py-1" title={`Buy for ${buy} zeny${pricing === "ocdc" ? ` using Discount 10` : ``}`}>
+                                {pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-down" /> : <></>}
                                 {buy.toLocaleString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Sell</div>
-                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${sell} zeny${filter.pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
-                                {filter.pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
+                            <div className="item-data flex items-center px-2 py-1  border-l-0 2xl:border-l" title={`Sell for ${sell} zeny${pricing === "ocdc" ? ` using Overcharge 10` : ``}`}>
+                                {pricing === "ocdc" ? <Icon className="emphasis shrink-0" name="double-arrow-up" /> : <></>}
                                 {sell.toLocaleString()}z
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Weight</div>
                             <div className="item-data flex items-center rounded-bl-lg 2xl:rounded-bl-none px-2 py-1  border-l-0 2xl:border-l" title={`Weighs ${item.weight?.toString()}`}>
                                 {item.weight?.toLocaleString()}
+                            </div>
+                            <div className="header px-2 pb-0.5 text-sm">Shops</div>
+                            <div className="item-data flex items-center px-2 py-1 border-l" title={`Dropped by ${((shops?.length ?? 0)).toString()} mobs`}>
+                                {(shops?.length ?? 0) > 0 && (
+                                    <>
+                                        <Icon className="emphasis shrink-0" name="shop" />
+                                        {((shops?.length ?? 0) + (shops?.length ?? 0)).toLocaleString()}
+                                    </>
+                                )}
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Drops</div>
                             <div className="item-data flex items-center px-2 py-1 border-l" title={`Dropped by ${((drops?.length ?? 0) + (mvpDrops?.length ?? 0)).toString()} mobs`}>
@@ -347,10 +371,10 @@ export const ItemDetails = ({
                             </div>
                             <div className="header px-2 pb-0.5 text-sm">Recipes</div>
                             <div className="item-data flex items-center rounded-br-lg 2xl:rounded-br-none px-2 py-1 border-l" title={`Found in ${(recipes?.length ?? 0).toString()} recipes`}>
-                                {(recipes?.length ?? 0) > 0 && (
+                                {(recipeCount) > 0 && (
                                     <>
                                         <Icon className="emphasis shrink-0" name="star" />
-                                        {((recipes?.length ?? 0)).toLocaleString()}
+                                        {(recipeCount).toLocaleString()}
                                     </>
                                 )}
                             </div>
@@ -370,6 +394,12 @@ export const ItemDetails = ({
                     </button>
                 </div>
             </div>
+
+            <p className="text-sm">{
+                filter
+                ? `Showing ${recipes?.length ?? 0} out of ${recipeCount} recipe${recipeCount !== 1 ? `s` : ``}`
+                : `Showing all ${recipeCount} recipe${recipeCount !== 1 ? `s` : ``}`
+            }</p>
 
             {(shops || drops || mvpDrops || recipes) && (
                 <div className="grow max-h-full overflow-y-auto flex flex-col gap-2 mx-1" tabIndex={0}>

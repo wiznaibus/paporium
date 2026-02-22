@@ -1,15 +1,55 @@
-import type { Recipe } from "../Item/ItemDetails";
+import type { Recipe, RecipeItem } from "../Item/ItemDetails";
 import { Badge } from "../Badge";
 import { Icon } from "../Icon";
 import { ItemIcon } from "../Item/ItemIcon";
 
 export const RecipeDetails = ({
+    filteredItemIds,
+    onItemClick,
     recipe,
-    selectedItemId
+    selectedItemId,
 }: {
+    filteredItemIds?: number[],
+    onItemClick?: (itemId: number) => void,
     recipe: Recipe,
-    selectedItemId?: number
+    selectedItemId?: number,
 }) => {
+    const ItemDetails = ({ recipeItem }: { recipeItem: RecipeItem }) => {
+        const children = (
+            <div className="grow recipe-data flex border-t">
+                <div className={`
+                    px-0.5 basis-10 shrink-0 emphasis
+                    ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
+                    ${recipeItem.id === selectedItemId ? `recipe-data-selected` : ``}
+                `}>
+                    {recipeItem.id}
+                    </div>
+                <div className={`
+                    px-0.5 grow shrink
+                    ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
+                    ${recipeItem.id === selectedItemId ? `recipe-data-selected` : ``}
+                `} title={recipeItem.name}>
+                    {recipeItem.name}
+                </div>
+                <div className={`
+                    px-0.5 shrink-0
+                    ${filteredItemIds?.includes(recipeItem.id ?? 0) ? `recipe-data-emphasis` : ``}
+                    ${recipeItem.id === selectedItemId ? `recipe-data-selected` : ``}
+                `}>
+                    x{recipeItem.quantity?.toLocaleString()}
+                </div>
+            </div>
+        );
+
+        return (
+            onItemClick && typeof onItemClick === 'function' ? <button
+                className="grow flex text-left cursor-pointer hover:bg-sakura-200"
+                onClick={() => onItemClick?.(recipeItem.id ?? 0)}
+                type="button"
+            >{children}</button> : children
+        );
+    };
+
     return recipe && (
         <div className="recipe flex flex-col px-1.5 pt-1 pb-2 overflow-hidden">
             <div className="flex items-center gap-1">
@@ -38,21 +78,13 @@ export const RecipeDetails = ({
                 <div className="grid grid-cols-1 auto-rows-min">
                     <div className="header">Ingredients</div>
                     {recipe.ingredients?.map(ingredient =>
-                        <div key={ingredient.id} className="recipe-data flex border-t">
-                            <div className={`px-0.5 basis-10 emphasis ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>{ingredient.id}</div>
-                            <div className={`px-0.5 grow truncate ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`} title={ingredient.name}>{ingredient.name}</div>
-                            <div className={`px-0.5 ${ingredient.id === selectedItemId && `recipe-data-emphasis`}`}>x{ingredient.quantity?.toLocaleString()}</div>
-                        </div>
+                        <ItemDetails key={ingredient.id} recipeItem={ingredient} />
                     )}
                 </div>
                 <div className="grid grid-cols-1 auto-rows-min">
                      <div className="header">Products</div>
                     {recipe.products?.map(product =>
-                        <div key={product.id} className="recipe-data flex border-t">
-                            <div className={`px-0.5 basis-10 emphasis ${product.id === selectedItemId && `recipe-data-emphasis`}`}>{product.id}</div>
-                            <div className={`px-0.5 grow truncate ${product.id === selectedItemId && `recipe-data-emphasis`}`} title={product.name}>{product.name}</div>
-                            <div className={`px-0.5 ${product.id === selectedItemId && `recipe-data-emphasis`}`}>x{product.quantity?.toLocaleString()}</div>
-                        </div>
+                        <ItemDetails key={product.id} recipeItem={product} />
                     )}
                 </div>
             </div>
