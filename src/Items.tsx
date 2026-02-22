@@ -32,12 +32,13 @@ export interface Item {
     overcharge?: boolean;
 }
 
-const defaultFilter = {
+export const defaultFilter = {
     item: "",
     itemTypes: [],
     jobs: [],
     recipeItemTypes: [],
     recipeTypes: [],
+    repeatable: [{ id: 0, name: "One-time", checked: false }, { id: 1, name: "Repeatable", checked: false }],
 };
 
 export const Items = () => {
@@ -225,6 +226,7 @@ export const Items = () => {
                 jobs,
                 recipeItemTypes,
                 recipeTypes,
+                repeatable: [{ id: 0, name: "One-time", checked: false }, { id: 1, name: "Repeatable", checked: false }],
             };
 
             // load filter data from searchParams
@@ -234,9 +236,10 @@ export const Items = () => {
                 item: parsedSearchParams.item,
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                overcharge: parsedSearchParams.overcharge,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
-                overcharge: parsedSearchParams.overcharge,
+                repeatable: parsedSearchParams.repeatable,
             };
 
             // set the filter items
@@ -295,9 +298,10 @@ export const Items = () => {
                 item: parsedSearchParams.item,
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                overcharge: parsedSearchParams.overcharge,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
-                overcharge: parsedSearchParams.overcharge,
+                repeatable: parsedSearchParams.repeatable,
             };
 
             // merge the searchParams into the filter items
@@ -314,14 +318,15 @@ export const Items = () => {
                 item,
                 itemTypes,
                 jobs,
+                overcharge,
                 recipeItemTypes,
                 recipeTypes,
-                overcharge,
+                repeatable,
             } = formatSearchParams(filter);
 
             let recipeFilter = ``;
             recipeFilter += jobs ? `
-                AND (Recipe.JobId IN (${jobs}))
+                AND Recipe.JobId IN (${jobs})
             ` : ``;
             recipeFilter += recipeTypes ? `
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
@@ -343,18 +348,33 @@ export const Items = () => {
                 `;
             }
 
-            if (recipeItemTypes) {
-                const ingredientFilter = recipeItemTypes.includes("1") ? `
+            if (recipeItemTypes || repeatable) {
+                const ingredientFilter = recipeItemTypes?.includes("1") ? `
                     (IngredientCount IS NOT NULL
                     OR RepeatableIngredientCount IS NOT NULL)
                 ` : null;
 
-                const productFilter = recipeItemTypes.includes("2") ? `
+                const productFilter = recipeItemTypes?.includes("2") ? `
                     (ProductCount IS NOT NULL
                     OR RepeatableProductCount IS NOT NULL)
                 ` : null;
 
-                innerFilter = [ingredientFilter, productFilter].filter(Boolean).join(" AND ");
+                /* const oneTimeFilter = repeatable?.includes("0") ? `
+                    (IngredientCount IS NOT NULL
+                    OR ProductCount IS NOT NULL)
+                ` : null;
+
+                const repeatableFilter = repeatable?.includes("1") ? `
+                    (RepeatableIngredientCount IS NOT NULL
+                    OR RepeatableProductCount IS NOT NULL)
+                ` : null; */
+
+                innerFilter = [
+                    ingredientFilter,
+                    productFilter,
+                    /* oneTimeFilter,
+                    repeatableFilter, */
+                ].filter(Boolean).join(" AND ");
             }
 
             let outerFilter = ``;

@@ -64,10 +64,11 @@ export const Filter = ({
             item: "",
             itemTypes: filter.itemTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
             jobs: filter.jobs?.map(value => ({ id: value.id, name: value.name, checked: false })),
-            recipe: "",
-            recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
-            recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
             overcharge: "",
+            recipe: "",
+            recipeItemTypes: filter.recipeItemTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
+            recipeTypes: filter.recipeTypes?.map(value => ({ id: value.id, name: value.name, checked: false })),
+            repeatable: filter.repeatable?.map(value => ({ id: value.id, name: value.name, checked: false })),
         }, true);
     };
 
@@ -86,7 +87,7 @@ export const Filter = ({
         };
 
         setFilter(newFilter);
-    }
+    };
 
     const handlePricingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newFilter = {
@@ -95,7 +96,7 @@ export const Filter = ({
         };
 
         setFilter(newFilter);
-    }
+    };
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const changedFilter: SearchFilter = {
@@ -124,50 +125,12 @@ export const Filter = ({
                         ></textarea>
                     </label>
                 </fieldset>
-                {type === 'item' ? (
-                    <fieldset className={`col-span-2 md:col-span-1 md:row-span-2 recipe recipe-data grid grid-cols-1 sm:grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
-                        <legend className="font-semibold">Filter Items by Recipe Components</legend>
-                        {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
-                            <label className="flex items-center gap-1 truncate" key={i}>
-                                <input
-                                    checked={value?.checked}
-                                    name="recipeItemTypes"
-                                    onChange={handleCheckboxChange}
-                                    type="checkbox"
-                                    value={value?.id}
-                                />
-                                <span className="truncate" title={value.name}>{value.name}</span>
-                            </label>
-                        ))}
-                        <label className="flex items-center gap-1 truncate" key="no-overcharge">
-                            <input
-                                checked={filter.overcharge === "false"}
-                                name="overcharge"
-                                onChange={handleOverchargeChange}
-                                type="checkbox"
-                                value="false"
-                            />
-                            <span className="truncate" title="Exclude Overcharge">Exclude Overcharge</span>
-                        </label>
-                        <label className="flex items-center gap-1 truncate" key="overcharge-only">
-                            <input
-                                checked={filter.overcharge === "true"}
-                                name="overcharge"
-                                onChange={handleOverchargeChange}
-                                type="checkbox"
-                                value="true"
-                            />
-                            <span className="truncate" title="Show Only Overcharge">Show Only Overcharge</span>
-                        </label>
-                        <div className="col-span-2 p-1 bg-yellow-300/25 border border-yellow-200/25 rounded-md">
-                            <img alt="overcharge" className="float-left mr-1" src="./assets/icons/overcharge.png" title="Can be safely sold" />
-                            <span className="font-semibold">Overcharge</span> refers to <Badge id={6} type="item" name="Etc" /> items that are not used as ingredients and can be safely sold to a vendor.
-                            Please be aware that a quest or recipe may be missing from the database and could result in items erroneously being marked as <span className="font-semibold">overcharge</span>.
-                        </div>
-                    </fieldset>
-                ) : (
-                    <fieldset className={`col-span-2 md:col-span-1 md:row-span-2 recipe recipe-data grid grid-cols-1 sm:grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
-                        <legend className="font-semibold">Filter Recipes</legend>
+                <fieldset className={`col-span-2 md:col-span-1 md:row-span-2 recipe recipe-data grid grid-cols-1 sm:grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
+                    <legend className="font-semibold">
+                        {type === 'item' && `Filter Items by Recipe Components`}
+                        {type === 'recipe' && `Filter Recipes`}
+                    </legend>
+                    {type === 'recipe' ? (
                         <label className="col-span-2 shrink flex items-center gap-1.5 font-semibold">Search:
                             <input
                                 className="w-full shrink px-2 py-1 border border-sage-500 bg-sage-700/75 rounded-md"
@@ -179,28 +142,82 @@ export const Filter = ({
                                 value={recipeInputValue}
                             />
                         </label>
-                        {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
-                            <label className="flex items-center gap-1 truncate" key={i}>
+                    ) : <></>}
+                    {filter.recipeItemTypes?.sort((a, b) => b.id - a.id).map((value, i) => (
+                        <label className="flex items-center gap-1 truncate" key={i}>
+                            <input
+                                checked={value?.checked}
+                                name="recipeItemTypes"
+                                onChange={handleCheckboxChange}
+                                type="checkbox"
+                                value={value?.id}
+                            />
+                            <span className="truncate" title={value.name}>{value.name}</span>
+                        </label>
+                    ))}
+                    {/* Filtering by one-time/repeatable is currently only implemented for Recipes */}
+                    {type === 'recipe' && filter.repeatable?.map((value, i) => (
+                        <label className="flex items-center gap-1 truncate" key={i}>
+                            <input
+                                checked={value?.checked}
+                                name="repeatable"
+                                onChange={handleCheckboxChange}
+                                type="checkbox"
+                                value={value?.id}
+                            />
+                            <span className="truncate" title={value.name}>{value.name}</span>
+                        </label>
+                    ))}
+                    {type === 'item' && (
+                        <>
+                            <label className="flex items-center gap-1 truncate" key="no-overcharge">
                                 <input
-                                    checked={value?.checked}
-                                    name="recipeItemTypes"
-                                    onChange={handleCheckboxChange}
+                                    checked={filter.overcharge === "false"}
+                                    name="overcharge"
+                                    onChange={handleOverchargeChange}
                                     type="checkbox"
-                                    value={value?.id}
+                                    value="false"
                                 />
-                                <span className="truncate" title={value.name}>{value.name}</span>
+                                <span className="truncate" title="Exclude Overcharge">Exclude Overcharge</span>
                             </label>
-                        ))}
-                    </fieldset>
-                )}
+                            <label className="flex items-center gap-1 truncate" key="overcharge-only">
+                                <input
+                                    checked={filter.overcharge === "true"}
+                                    name="overcharge"
+                                    onChange={handleOverchargeChange}
+                                    type="checkbox"
+                                    value="true"
+                                />
+                                <span className="truncate" title="Show Only Overcharge">Show Only Overcharge</span>
+                            </label>
+                            <div className="col-span-2 p-1 bg-yellow-300/25 border border-yellow-200/25 rounded-md">
+                                <img alt="overcharge" className="float-left mr-1" src="./assets/icons/overcharge.png" title="Can be safely sold" />
+                                <span className="font-semibold">Overcharge</span> refers to <Badge id={6} type="item" name="Etc" /> items that are not used as ingredients and can be safely sold to a vendor.
+                                Please be aware that a quest or recipe may be missing from the database and could result in items erroneously being marked as <span className="font-semibold">overcharge</span>.
+                            </div>
+                        </>
+                    )}
+                </fieldset>
                 <fieldset className={`col-span-2 md:col-span-1 item grid grid-cols-2 auto-rows-min gap-1 px-3 pt-1 pb-2`}>
                     <legend className="font-semibold">Item Buy/Sell Prices</legend>
                     <label className="flex items-center gap-1 truncate">
-                        <input checked={filter.pricing !== "ocdc"} name="itemPriceType" onChange={handlePricingChange} type="radio" value="" />
+                        <input
+                            checked={filter.pricing !== "ocdc"}
+                            name="itemPriceType"
+                            onChange={handlePricingChange}
+                            type="radio"
+                            value=""
+                        />
                         Default
                     </label>
                     <label className="flex items-center gap-1 truncate">
-                        <input checked={filter.pricing === "ocdc"} name="itemPriceType" onChange={handlePricingChange} type="radio" value="ocdc" />
+                        <input
+                            checked={filter.pricing === "ocdc"}
+                            name="itemPriceType"
+                            onChange={handlePricingChange}
+                            type="radio"
+                            value="ocdc"
+                        />
                         Discount/Overcharge
                     </label>
                 </fieldset>

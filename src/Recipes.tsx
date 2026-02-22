@@ -3,20 +3,13 @@ import initSqlJs, { type Database } from "sql.js";
 import { Link, useSearchParams } from 'react-router-dom';
 import './index.css';
 import { formatSearchParams, mergeSearchFilter, parseSearchParams, type SearchFilter } from "./utilities/SearchFilter";
-import { ItemDetails, type Recipe, type RecipeItem } from "./components/Item/ItemDetails";
-import { Icon } from "./components/Icon";
-import { Navbar } from "./components/Navbar";
-import { Filter } from "./components/Filter";
-import { RecipeTable } from "./components/Recipe/RecipeTable";
+import { defaultFilter } from "./Items";
 import { Breadcrumb } from "./components/Breadcrumb";
-
-const defaultFilter = {
-    item: "",
-    itemTypes: [],
-    jobs: [],
-    recipeItemTypes: [],
-    recipeTypes: [],
-};
+import { Filter } from "./components/Filter";
+import { Icon } from "./components/Icon";
+import { ItemDetails, type Recipe, type RecipeItem } from "./components/Item/ItemDetails";
+import { Navbar } from "./components/Navbar";
+import { RecipeTable } from "./components/Recipe/RecipeTable";
 
 export const Recipes = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -85,6 +78,7 @@ export const Recipes = () => {
                 jobs,
                 recipeItemTypes,
                 recipeTypes,
+                repeatable: [{ id: 0, name: "One-time", checked: false }, { id: 1, name: "Repeatable", checked: false }],
             };
 
             // load filter data from searchParams
@@ -94,9 +88,10 @@ export const Recipes = () => {
                 item: parsedSearchParams.item,
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                overcharge: parsedSearchParams.overcharge,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
-                overcharge: parsedSearchParams.overcharge,
+                repeatable: parsedSearchParams.repeatable,
             };
 
             // set the filter items
@@ -121,9 +116,10 @@ export const Recipes = () => {
                 item: parsedSearchParams.item,
                 itemTypes: parsedSearchParams.itemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 jobs: parsedSearchParams.jobs?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
+                overcharge: parsedSearchParams.overcharge,
                 recipeItemTypes: parsedSearchParams.recipeItemTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
                 recipeTypes: parsedSearchParams.recipeTypes?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
-                overcharge: parsedSearchParams.overcharge,
+                repeatable: parsedSearchParams.repeatable?.map((value) => ({ id: Number(value.id) ?? 0, checked: value.checked })),
             };
 
             // merge the searchParams into the current filter
@@ -143,6 +139,7 @@ export const Recipes = () => {
                 recipe,
                 recipeItemTypes,
                 recipeTypes,
+                repeatable,
             } = formatSearchParams(filter);
 
             let recipeFilter = ``;
@@ -175,8 +172,13 @@ export const Recipes = () => {
             recipeFilter += jobs ? `
                 AND (Recipe.JobId IN (${jobs}))
             ` : ``;
+
             recipeFilter += recipeTypes ? `
                 AND Recipe.RecipeTypeId IN (${recipeTypes})
+            ` : ``;
+
+            recipeFilter += repeatable ? `
+                AND Recipe.Repeatable IN (${repeatable})
             ` : ``;
 
             setFilterItemIds((sanitizedItem || itemTypes) ? db.exec(`
@@ -329,6 +331,6 @@ export const Recipes = () => {
                     )}
                 </div>
             </div>
-            </>
+        </>
     );
 };

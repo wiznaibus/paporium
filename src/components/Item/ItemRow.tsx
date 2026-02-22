@@ -124,7 +124,7 @@ export const ItemRow = ({
                         <div className="item-separator px-2 md:pb-0.5 md:border-l text-sm header truncate" title="One-time">One-time</div>
                         <div className="px-2 md:pb-0.5 text-sm header">Repeat</div>
                         <div className="item-data item-separator flex rounded-bl-lg md:rounded-none items-center px-2 md:py-1 md:border-l">
-                            {((ingredientSum ?? 0) > 0) && <div className="flex items-center" title={`One-time recipes use x${ingredientSum?.toLocaleString()}`}>
+                            {((ingredientSum ?? 0) > 0) && <div className="flex items-center overflow-hidden" title={`One-time recipes use x${ingredientSum?.toLocaleString()}`}>
                                 <Icon className="shrink-0 emphasis" name="star" />
                                 <span className="truncate">x{ingredientSum?.toLocaleString()}</span>
                             </div>}
